@@ -19,7 +19,7 @@ RNA-Trabajo-3/
 │   ├── curva_aprendizaje_lstm.png
 │   └── prediccion_vs_real_lstm*.png
 │
-├── modeulo2_clasificacion_imagenes_conductor.ipynb     # Módulo 2
+├── modulo2_clasificacion_imagenes_conductor.ipynb     # Módulo 2
 ├── saved_models/                                       # Pesos PyTorch (.pth) del módulo 2
 │   ├── best_mobilenet.pth
 │   ├── best_resnet50.pth
@@ -86,7 +86,7 @@ Artefactos generados: [modelo_lstm_transporte.keras](modelo_lstm_modulo_1/modelo
 
 ## Módulo 2 — Clasificación: comportamiento del conductor (CNN)
 
-**Notebook:** [modeulo2_clasificacion_imagenes_conductor.ipynb](modeulo2_clasificacion_imagenes_conductor.ipynb)
+**Notebook:** [modulo2_clasificacion_imagenes_conductor.ipynb](modulo2_clasificacion_imagenes_conductor.ipynb)
 
 ### Objetivo
 Clasificar imágenes de conductores en 5 comportamientos: `safe_driving`, `talking_phone`, `texting_phone`, `other_activities`, `turning`.
@@ -158,7 +158,7 @@ Cada módulo es un notebook independiente y autocontenido. Abre con Jupyter / VS
 
 ```powershell
 jupyter notebook modulo1_creacion_dataset_y_regresión.ipynb
-jupyter notebook modeulo2_clasificacion_imagenes_conductor.ipynb
+jupyter notebook modulo2_clasificacion_imagenes_conductor.ipynb
 jupyter notebook modulo3_sistema_recomendacion_module3_prueba_new_dataset.ipynb
 ```
 
