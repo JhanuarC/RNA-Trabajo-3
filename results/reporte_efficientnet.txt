@@ -1,0 +1,21 @@
+Modelo: efficientnet
+==================================================
+
+Classification Report:
+                  precision    recall  f1-score   support
+
+other_activities      0.606     0.488     0.541       129
+    safe_driving      0.728     0.713     0.721       150
+   talking_phone      0.765     0.794     0.779       160
+   texting_phone      0.709     0.782     0.744       165
+         turning      0.777     0.808     0.792       125
+
+        accuracy                          0.723       729
+       macro avg      0.717     0.717     0.715       729
+    weighted avg      0.719     0.723     0.719       729
+
+AUC-ROC macro: 0.9070
+
+Recall clases críticas:
+  talking_phone: 0.794
+  texting_phone: 0.782
