@@ -10,14 +10,14 @@ Este repositorio contiene tres módulos independientes que abordan distintos pro
 
 ```
 RNA-Trabajo-3/
-├── modulo1_creacion_dataset_y_regresión.ipynb          # Módulo 1
-├── modelo_lstm_modulo_1/                               # Modelo, dataset y gráficas del módulo 1
-│   ├── creacion_datos_globales.ipynb
-│   ├── demanda_transporte_global.csv
-│   ├── modelo_lstm_transporte.keras
-│   ├── scaler_transporte.pkl
+├── modelo_lstm_modulo_1/                               # Módulo 1 — notebook, dataset, modelo y gráficas
+│   ├── creacion_datos_globales.ipynb                   # Notebook único del módulo (dataset + regresión + LSTM)
+│   ├── demanda_transporte_global.csv                   # Dataset sintético global (22 países, 144.738 filas)
+│   ├── modelo_lstm_transporte.keras                    # Modelo LSTM entrenado
+│   ├── scaler_transporte.pkl                           # MinMaxScaler ajustado a las features
 │   ├── curva_aprendizaje_lstm.png
-│   └── prediccion_vs_real_lstm*.png
+│   ├── prediccion_vs_real_lstm.png
+│   └── prediccion_vs_real_lstm_japon.png               # Caso de estudio: Japón
 │
 ├── modulo2_clasificacion_imagenes_conductor.ipynb     # Módulo 2
 ├── saved_models/                                       # Pesos PyTorch (.pth) del módulo 2
@@ -56,15 +56,19 @@ Los módulos 2 y 3 descargan sus datasets automáticamente desde Kaggle vía `ka
 
 ## Módulo 1 — Regresión: predicción de demanda de transporte (LSTM)
 
-**Notebook:** [modulo1_creacion_dataset_y_regresión.ipynb](modulo1_creacion_dataset_y_regresión.ipynb)
+**Notebook:** [modelo_lstm_modulo_1/creacion_datos_globales.ipynb](modelo_lstm_modulo_1/creacion_datos_globales.ipynb)
 
 ### Objetivo
-Predecir la demanda diaria de pasajeros en rutas de transporte en India, considerando ruta, tipo de vehículo, método de pago y estacionalidad regional.
+Predecir la demanda diaria de pasajeros en rutas turísticas a nivel **global**, considerando país, hemisferio, tipo de vehículo, método de pago, eventos especiales y estacionalidad climática.
 
 ### Pipeline
-1. **Generación sintética del dataset** (131.580 registros, 2024–2025) con factores de estacionalidad regional, tipo de vehículo y método de pago.
-2. **Baseline:** Regresión Lineal con One-Hot Encoding.
-3. **Modelo final:** LSTM multivariada con ventana temporal de 14 días, `BatchNormalization`, `Dropout` y callbacks `EarlyStopping` + `ReduceLROnPlateau`.
+1. **Generación sintética del dataset global** (144.738 registros, 2024–2025) sobre 22 países agrupados por hemisferio (Norte / Sur / Tropical), con:
+   - 3 tipos de transporte: `luxury_bus`, `tourist_van`, `train_express`.
+   - 3 métodos de pago: `cash`, `card`, `digital_wallet` (incluye UPI, PIX, M-Pesa, Alipay).
+   - Estacionalidad climática por hemisferio + estacionalidad semanal.
+   - Eventos especiales como anomalías para la RNN: Año Nuevo Chino, Navidad global y Golden Week en Japón.
+2. **Baseline:** Regresión Lineal con One-Hot Encoding (32 features).
+3. **Modelo final:** LSTM multivariada con ventana temporal de **14 días** y **33 features** de entrada, agrupando secuencias por `(país, vehículo, método de pago)` y haciendo split cronológico real (80/20) para evitar leakage temporal. Incluye `BatchNormalization`, `Dropout(0.3)` y callbacks `EarlyStopping` + `ReduceLROnPlateau`.
 
 ### Arquitectura LSTM
 ```
@@ -75,12 +79,14 @@ Dense(32, relu) → Dense(1, linear)
 
 ### Resultados
 
-| Modelo            | MAE   | RMSE   | MAPE   | Precisión |
-|-------------------|-------|--------|--------|-----------|
-| Regresión Lineal  | 77.18 | 106.93 | —      | —         |
-| **LSTM**          | **16.44** | **28.61** | **8.92%** | **91.08%** |
+| Modelo            | MAE     | RMSE    | MAPE | Precisión |
+|-------------------|---------|---------|------|-----------|
+| Regresión Lineal  | 143.37  | 183.04  | —    | —         |
+| **LSTM**          | pendiente | pendiente | pendiente | pendiente |
 
-Artefactos generados: [modelo_lstm_transporte.keras](modelo_lstm_modulo_1/modelo_lstm_transporte.keras), [scaler_transporte.pkl](modelo_lstm_modulo_1/scaler_transporte.pkl), [curva_aprendizaje_lstm.png](modelo_lstm_modulo_1/curva_aprendizaje_lstm.png).
+> Las métricas finales del LSTM están pendientes de la próxima ejecución completa del notebook; los artefactos (`modelo_lstm_transporte.keras`, `scaler_transporte.pkl`) y las gráficas ya están actualizados con el nuevo dataset global.
+
+Artefactos generados: [modelo_lstm_transporte.keras](modelo_lstm_modulo_1/modelo_lstm_transporte.keras), [scaler_transporte.pkl](modelo_lstm_modulo_1/scaler_transporte.pkl), [curva_aprendizaje_lstm.png](modelo_lstm_modulo_1/curva_aprendizaje_lstm.png), [prediccion_vs_real_lstm_japon.png](modelo_lstm_modulo_1/prediccion_vs_real_lstm_japon.png).
 
 ---
 
@@ -157,7 +163,7 @@ Ejemplo para un perfil "Playa": *Grand Ruins (Vietnam)*, *Crystal Park (Canada)*
 Cada módulo es un notebook independiente y autocontenido. Abre con Jupyter / VS Code y ejecuta las celdas en orden:
 
 ```powershell
-jupyter notebook modulo1_creacion_dataset_y_regresión.ipynb
+jupyter notebook modelo_lstm_modulo_1/creacion_datos_globales.ipynb
 jupyter notebook modulo2_clasificacion_imagenes_conductor.ipynb
 jupyter notebook modulo3_sistema_recomendacion_module3_prueba_new_dataset.ipynb
 ```

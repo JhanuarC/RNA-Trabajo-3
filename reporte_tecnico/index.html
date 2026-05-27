@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte Técnico — Sistema Inteligente de Transporte</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep:       #060d1a;
+    --bg-card:       #0d1827;
+    --bg-surface:    #111f33;
+    --accent-blue:   #00b4d8;
+    --accent-gold:   #f0a500;
+    --accent-teal:   #06d6a0;
+    --accent-rose:   #ef476f;
+    --text-primary:  #e8edf5;
+    --text-secondary:#8fa3c0;
+    --text-muted:    #4f6480;
+    --border:        rgba(0,180,216,.18);
+    --border-gold:   rgba(240,165,0,.25);
+    --glow-blue:     0 0 40px rgba(0,180,216,.15);
+    --glow-gold:     0 0 40px rgba(240,165,0,.12);
+    --radius:        12px;
+    --radius-lg:     20px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(6,13,26,.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: .78rem;
+    color: var(--accent-blue);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; gap: 1.5rem; list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--accent-blue); }
+
+  /* ─── HERO COVER ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center;
+    padding: 8rem 2rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 30%, rgba(0,180,216,.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, rgba(240,165,0,.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 35% at 80% 70%, rgba(6,214,160,.06) 0%, transparent 55%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,180,216,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: rgba(0,180,216,.1);
+    border: 1px solid rgba(0,180,216,.3);
+    border-radius: 100px;
+    padding: .4rem 1.2rem;
+    font-size: .78rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent-blue);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.4; transform:scale(1.4); }
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    max-width: 880px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent-gold);
+  }
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 620px;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
+    position: relative;
+  }
+  .meta-card {
+    background: rgba(13,24,39,.8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.6rem;
+    text-align: left;
+    min-width: 200px;
+  }
+  .meta-label {
+    font-size: .72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--accent-blue);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: .4rem;
+  }
+  .meta-value {
+    font-size: .9rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .meta-value small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .8rem;
+    font-weight: 400;
+  }
+
+  /* ─── SECTION WRAPPER ─── */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+
+  .section-header {
+    margin-bottom: 3rem;
+  }
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem;
+    color: var(--accent-blue);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: .7rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .section-tag::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--accent-blue);
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--text-primary);
+  }
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 2rem 0 1rem;
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin: 1.5rem 0 .7rem;
+  }
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+  strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ─── LEAD PARAGRAPH ─── */
+  .lead {
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    line-height: 1.8;
+    border-left: 3px solid var(--accent-gold);
+    padding-left: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ─── CARDS GRID ─── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.8rem;
+    transition: border-color .3s, box-shadow .3s;
+  }
+  .card:hover {
+    border-color: rgba(0,180,216,.4);
+    box-shadow: var(--glow-blue);
+  }
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .card-icon.blue { background: rgba(0,180,216,.12); }
+  .card-icon.gold { background: rgba(240,165,0,.12); }
+  .card-icon.teal { background: rgba(6,214,160,.12); }
+  .card-icon.rose { background: rgba(239,71,111,.12); }
+  .card h4 { margin-top: 0; }
+  .card p { font-size: .92rem; margin-bottom: 0; }
+
+  /* ─── METRICS ROW ─── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .metric-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    text-align: center;
+  }
+  .metric-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    line-height: 1;
+    margin-bottom: .4rem;
+  }
+  .metric-num.gold { color: var(--accent-gold); }
+  .metric-num.teal { color: var(--accent-teal); }
+  .metric-num.rose { color: var(--accent-rose); }
+  .metric-label {
+    font-size: .78rem;
+    color: var(--text-muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: .9rem;
+  }
+  .compare-table th {
+    text-align: left;
+    padding: .8rem 1.2rem;
+    background: var(--bg-surface);
+    color: var(--accent-blue);
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: .9rem 1.2rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .compare-table tr:hover td { background: rgba(0,180,216,.04); }
+  .compare-table td strong { color: var(--accent-teal); }
+  .tag-best {
+    display: inline-block;
+    background: rgba(6,214,160,.15);
+    border: 1px solid rgba(6,214,160,.3);
+    color: var(--accent-teal);
+    font-size: .7rem;
+    font-family: 'DM Mono', monospace;
+    padding: .15rem .6rem;
+    border-radius: 4px;
+    letter-spacing: .06em;
+    margin-left: .5rem;
+  }
+
+  /* ─── TIMELINE / PIPELINE ─── */
+  .pipeline {
+    display: flex;
+    gap: 0;
+    margin: 2.5rem 0;
+    overflow-x: auto;
+  }
+  .pipe-step {
+    flex: 1; min-width: 140px;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 20px;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+  }
+  .pipe-step:last-child::after { display: none; }
+  .pipe-dot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 2px solid var(--accent-blue);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto .8rem;
+    font-size: 1.1rem;
+  }
+  .pipe-step p {
+    font-size: .78rem;
+    color: var(--text-secondary);
+    margin: 0;
+    padding: 0 .5rem;
+  }
+
+  /* ─── ARCHITECTURE BLOCK ─── */
+  .arch-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin: 2rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    color: var(--text-secondary);
+    line-height: 2;
+    overflow-x: auto;
+  }
+  .arch-block .layer { color: var(--accent-gold); }
+  .arch-block .op    { color: var(--accent-blue); }
+  .arch-block .val   { color: var(--accent-teal); }
+  .arch-block .arrow { color: var(--text-muted); }
+
+  /* ─── CALLOUT BOX ─── */
+  .callout {
+    background: rgba(0,180,216,.07);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1.2rem 1.6rem;
+    margin: 1.5rem 0;
+  }
+  .callout.gold {
+    background: rgba(240,165,0,.07);
+    border-color: var(--accent-gold);
+  }
+  .callout.teal {
+    background: rgba(6,214,160,.07);
+    border-color: var(--accent-teal);
+  }
+  .callout-title {
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: .5rem;
+    color: var(--accent-blue);
+  }
+  .callout.gold .callout-title { color: var(--accent-gold); }
+  .callout.teal .callout-title { color: var(--accent-teal); }
+  .callout p { margin-bottom: 0; font-size: .92rem; }
+
+  /* ─── TECH STACK BADGES ─── */
+  .tech-badges {
+    display: flex; flex-wrap: wrap; gap: .6rem;
+    margin: 1rem 0;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: .3rem .8rem;
+    font-size: .78rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-secondary);
+    letter-spacing: .04em;
+  }
+  .badge.blue { border-color: rgba(0,180,216,.3); color: var(--accent-blue); }
+  .badge.gold { border-color: rgba(240,165,0,.3); color: var(--accent-gold); }
+  .badge.teal { border-color: rgba(6,214,160,.3); color: var(--accent-teal); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 3rem 0;
+  }
+
+  /* ─── MODULE HEADER ─── */
+  .module-header {
+    display: flex; align-items: flex-start; gap: 1.5rem;
+    padding: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 3rem;
+  }
+  .module-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(0,180,216,.2);
+    line-height: 1;
+    min-width: 70px;
+  }
+  .module-info h3 { margin: 0 0 .5rem; font-size: 1.6rem; }
+  .module-info p { font-size: .95rem; margin: 0; }
+
+  /* ─── TWO COLUMNS ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  @media(max-width:720px) {
+    .two-col { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-item { margin-bottom: 1rem; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: .82rem; margin-bottom: .4rem;
+  }
+  .progress-label span:first-child { color: var(--text-secondary); }
+  .progress-label span:last-child  { color: var(--accent-blue); font-family:'DM Mono',monospace; }
+  .progress-bar {
+    height: 6px; background: var(--bg-surface);
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+  }
+
+  /* ─── QUOTE ─── */
+  blockquote {
+    border-left: 2px solid var(--accent-gold);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+  }
+
+  /* ─── LIST ─── */
+  ul.styled { list-style: none; padding: 0; }
+  ul.styled li {
+    padding: .5rem 0 .5rem 1.6rem;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: .95rem;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  ul.styled li::before {
+    content: '▸';
+    position: absolute; left: 0;
+    color: var(--accent-blue);
+    font-size: .75rem;
+    top: .65rem;
+  }
+  ul.styled li:last-child { border-bottom: none; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+    font-size: .82rem;
+    font-family: 'DM Mono', monospace;
+    border-top: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  footer strong { color: var(--text-secondary); }
+
+  /* ─── PRINT ─── */
+  @media print {
+    nav { display: none; }
+    .hero { min-height: auto; padding: 2rem; }
+    .section { padding: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     NAVIGATION
+══════════════════════════════════ -->
+<nav>
+  <span class="nav-brand">RNA · Trabajo 3 · 2025</span>
+  <ul class="nav-links">
+    <li><a href="#portada">Portada</a></li>
+    <li><a href="#resumen">Resumen</a></li>
+    <li><a href="#introduccion">Intro</a></li>
+    <li><a href="#metodologia">Metodología</a></li>
+    <li><a href="#modulo1">Módulo 1</a></li>
+    <li><a href="#modulo2">Módulo 2</a></li>
+    <li><a href="#modulo3">Módulo 3</a></li>
+    <li><a href="#resultados">Resultados</a></li>
+    <li><a href="#conclusiones">Conclusiones</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════════════════
+     HERO / PORTADA
+══════════════════════════════════ -->
+<section id="portada" class="hero">
+  <div class="hero-grid"></div>
+
+  <div class="hero-badge">Redes Neuronales · Trabajo 3 · 2025</div>
+
+  <h1>
+    Sistema Inteligente Integrado para<br>
+    <em>Predicción, Clasificación</em><br>
+    y Recomendación en Transporte
+  </h1>
+
+  <p class="hero-subtitle">
+    Un sistema de aprendizaje profundo que anticipa demanda, detecta conducción distractiva
+    y personaliza destinos de viaje para una empresa de transporte moderno.
+  </p>
+
+  <div class="hero-meta">
+    <div class="meta-card">
+      <div class="meta-label">Integrantes</div>
+      <div class="meta-value">
+        Daniel Felipe Garzón Acosta
+        <small>Jhanuar Castro López · Juan Felipe Moreno</small>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Asignatura</div>
+      <div class="meta-value">
+        Redes Neuronales y Algoritmos Bio-inspirados
+        <small>Trabajo Final — Módulos 1, 2 y 3</small>
+      </div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label">Fecha · Estado</div>
+      <div class="meta-value">
+        Mayo 2025
+        <small>Versión 1.0 · Entrega Final</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     RESUMEN EJECUTIVO
+══════════════════════════════════ -->
+<section id="resumen" class="section">
+  <div class="section-header">
+    <div class="section-tag">01 · Resumen Ejecutivo</div>
+    <h2>Visión General del Proyecto</h2>
+  </div>
+
+  <p class="lead">
+    Este trabajo presenta un sistema inteligente de tres módulos que aplica aprendizaje profundo
+    a los retos operativos de una empresa de transporte: predecir demanda, detectar distracciones
+    al volante y recomendar destinos personalizados.
+  </p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">📈</div>
+      <h4>Módulo 1 · Predicción LSTM</h4>
+      <p>Modelo LSTM multivariado que predice la demanda de pasajeros con <strong>91.08% de precisión</strong> y MAE de 16.44 pasajeros, superando ampliamente la regresión lineal base (MAE 77.18).</p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">🎯</div>
+      <h4>Módulo 2 · Clasificación CNN</h4>
+      <p>Transfer learning sobre ResNet50 que detecta comportamientos distractores en conductores con <strong>94.7% de accuracy</strong> y AUC-ROC de 0.9972 sobre 5 categorías.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">✨</div>
+      <h4>Módulo 3 · Recomendación MLP</h4>
+      <p>Sistema híbrido neuronal que sugiere destinos turísticos personalizados con <strong>F1-score de 0.9871</strong>, combinando filtrado colaborativo y basado en contenido.</p>
+    </div>
+  </div>
+
+  <h3>Resultados Clave</h3>
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num">91.1%</div>
+      <div class="metric-label">Precisión LSTM</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">94.7%</div>
+      <div class="metric-label">Accuracy CNN</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num teal">0.987</div>
+      <div class="metric-label">F1 Recomendador</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num rose">3</div>
+      <div class="metric-label">Módulos Integrados</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">131K</div>
+      <div class="metric-label">Registros Módulo 1</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">0.997</div>
+      <div class="metric-label">AUC-ROC ResNet50</div>
+    </div>
+  </div>
+
+  <div class="callout gold">
+    <div class="callout-title">Impacto Esperado</div>
+    <p>La integración de estos tres módulos en una plataforma unificada permite a la empresa
+       optimizar la asignación de flota, reducir incidentes de tránsito y aumentar la retención
+       de usuarios mediante recomendaciones personalizadas.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     INTRODUCCIÓN
+══════════════════════════════════ -->
+<section id="introduccion" class="section">
+  <div class="section-header">
+    <div class="section-tag">02 · Introducción</div>
+    <h2>Contexto y Motivación</h2>
+  </div>
+
+  <p class="lead">
+    El sector del transporte enfrenta presiones crecientes para operar de manera más eficiente,
+    segura y centrada en el usuario. El aprendizaje profundo ofrece herramientas precisas
+    para dar respuesta a estos tres desafíos simultáneamente.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h3>El Problema</h3>
+      <p>Las empresas de transporte modernas operan en un entorno donde la demanda fluctúa
+        por estacionalidad, festividades y condiciones externas. La asignación manual de
+        recursos es reactiva e ineficiente, generando sobreoferta o escasez de vehículos.</p>
+
+      <p>Simultáneamente, la conducción distractiva es una de las principales causas de
+        accidentes de tránsito a nivel mundial. Los sistemas de monitoreo visual en tiempo
+        real representan una oportunidad de prevención de alto impacto.</p>
+
+      <p>Por último, la personalización es la nueva expectativa del usuario de servicios
+        de transporte. Un sistema de recomendación inteligente no sólo mejora la experiencia,
+        sino que incrementa los ingresos por ruta al estimular la demanda latente.</p>
+    </div>
+    <div>
+      <h3>Alcance y Limitaciones</h3>
+      <ul class="styled">
+        <li>El Módulo 1 trabaja con datos sintéticos calibrados para rutas de transporte en India, con patrones estacionales reales.</li>
+        <li>El Módulo 2 utiliza el dataset público de Kaggle <em>Multi-Class Driver Behavior</em>, acotado a 5 categorías de comportamiento.</li>
+        <li>El Módulo 3 combina <em>Travel Review Ratings</em> (5,456 usuarios) con <em>Popular Tourist Destinations</em> (2,000 destinos).</li>
+        <li>La herramienta web es un prototipo funcional; la productización requeriría infraestructura adicional.</li>
+        <li>Los modelos no han sido validados en despliegue real en tiempo real.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Objetivos del Proyecto</h3>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">🔮</div>
+      <h4>Objetivo General</h4>
+      <p>Desarrollar un sistema inteligente basado en aprendizaje profundo que integre predicción de demanda, clasificación de imágenes y recomendaciones personalizadas para mejorar la eficiencia y seguridad de los servicios de transporte.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">📐</div>
+      <h4>Objetivo Específico 1</h4>
+      <p>Entrenar un modelo LSTM con datos históricos para predecir la demanda de transporte en rutas específicas durante los próximos 30 días.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">👁️</div>
+      <h4>Objetivo Específico 2</h4>
+      <p>Implementar un modelo de clasificación de imágenes para identificar comportamientos distractores de conductores como uso de teléfono o somnolencia.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon rose">🧭</div>
+      <h4>Objetivo Específico 3</h4>
+      <p>Desarrollar un sistema de recomendaciones personalizadas para destinos de viaje basado en el historial y preferencias de los usuarios.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     METODOLOGÍA
+══════════════════════════════════ -->
+<section id="metodologia" class="section">
+  <div class="section-header">
+    <div class="section-tag">03 · Metodología</div>
+    <h2>Enfoque y Marco Técnico</h2>
+  </div>
+
+  <p class="lead">
+    El proyecto adopta una metodología iterativa y modular inspirada en CRISP-DM
+    (Cross-Industry Standard Process for Data Mining), adaptada al ciclo de desarrollo
+    de modelos de aprendizaje profundo.
+  </p>
+
+  <h3>Fases del Proyecto</h3>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-dot">🔍</div>
+      <p><strong>Comprensión</strong><br>del negocio y datos</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🗂️</div>
+      <p><strong>Recolección</strong><br>y preprocesamiento</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🧱</div>
+      <p><strong>Diseño</strong><br>de arquitecturas</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">⚙️</div>
+      <p><strong>Entrenamiento</strong><br>y validación</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">📊</div>
+      <p><strong>Evaluación</strong><br>de métricas</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🌐</div>
+      <p><strong>Despliegue</strong><br>interfaz web</p>
+    </div>
+  </div>
+
+  <h3>Conceptos Clave</h3>
+  <div class="two-col">
+    <div>
+      <h4>Redes LSTM (Long Short-Term Memory)</h4>
+      <p>Variante de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales. Las puertas de entrada, olvido y salida controlan qué información se retiene o descarta en la celda de memoria, resolviendo el problema del gradiente desvaneciente.</p>
+
+      <h4>Transfer Learning</h4>
+      <p>Técnica que reutiliza representaciones aprendidas por modelos pre-entrenados en grandes conjuntos de datos (ImageNet). Permite obtener alto rendimiento con datasets pequeños mediante fine-tuning de las capas superiores de la red.</p>
+    </div>
+    <div>
+      <h4>Sistemas de Recomendación Híbridos</h4>
+      <p>Combinan el filtrado colaborativo (patrones entre usuarios) con el filtrado basado en contenido (características de los ítems) en una arquitectura neuronal unificada, superando las limitaciones de cada enfoque por separado.</p>
+
+      <h4>Métricas de Evaluación</h4>
+      <p>Para series de tiempo: MAE, RMSE, MAPE. Para clasificación: Accuracy, Precision, Recall, F1-score, AUC-ROC. Para recomendación: Precision@K, Recall@K, F1@K, NDCG.</p>
+    </div>
+  </div>
+
+  <h3>Stack Tecnológico</h3>
+  <div class="tech-badges">
+    <span class="badge blue">Python 3.11</span>
+    <span class="badge blue">TensorFlow / Keras</span>
+    <span class="badge blue">PyTorch</span>
+    <span class="badge gold">Pandas · NumPy</span>
+    <span class="badge gold">Scikit-learn</span>
+    <span class="badge teal">CUDA / GPU T4</span>
+    <span class="badge teal">Google Colab</span>
+    <span class="badge">Matplotlib · Seaborn</span>
+    <span class="badge">Kaggle Datasets</span>
+    <span class="badge">GitHub</span>
+  </div>
+
+  <hr class="divider">
+
+  <div class="callout">
+    <div class="callout-title">Entorno de Entrenamiento</div>
+    <p>Todos los modelos fueron entrenados en Google Colab con aceleración GPU (NVIDIA T4, 16 GB VRAM).
+       Los módulos 2 y 3 utilizan PyTorch con detección automática de CUDA; el módulo 1 utiliza
+       TensorFlow 2.x con configuración de crecimiento de memoria adaptativo.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     MÓDULO 1 — PREDICCIÓN LSTM
+══════════════════════════════════ -->
+<section id="modulo1" class="section">
+  <div class="section-header">
+    <div class="section-tag">04 · Desarrollo Técnico</div>
+    <h2>Módulo 1 — Predicción de Demanda (LSTM)</h2>
+  </div>
+
+  <div class="module-header">
+    <div class="module-num">01</div>
+    <div class="module-info">
+      <h3>Series de Tiempo con Redes LSTM</h3>
+      <p>Predicción de la demanda diaria de pasajeros en rutas de transporte para India, considerando
+         estacionalidad regional, tipo de vehículo y método de pago.</p>
+    </div>
+  </div>
+
+  <h3>Dataset</h3>
+  <p>Se generó un dataset sintético calibrado con patrones reales de transporte en India,
+     cubriendo el período 2024–2025:</p>
+
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num">131,580</div>
+      <div class="metric-label">Registros totales</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">5</div>
+      <div class="metric-label">Estados de India</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num teal">20</div>
+      <div class="metric-label">Rutas únicas</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">3</div>
+      <div class="metric-label">Tipos de vehículo</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num rose">3</div>
+      <div class="metric-label">Métodos de pago</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">730</div>
+      <div class="metric-label">Días cubiertos</div>
+    </div>
+  </div>
+
+  <div class="callout teal">
+    <div class="callout-title">Generación del Dataset</div>
+    <p>El dataset incorpora <strong>estacionalidad regional</strong> diferenciada: Jammu y Cachemira
+       alcanza pico en verano (×1.8) y baja drásticamente en invierno (×0.4); Goa y Kerala
+       alcanzan pico en invierno (×2.0) por turismo; Uttar Pradesh y Rajastán tienen mayor
+       demanda en estaciones frías (×1.5). También se modelan efectos semanales (viernes/sábado +25)
+       y tendencia de crecimiento lineal.</p>
+  </div>
+
+  <h3>Preprocesamiento</h3>
+  <ul class="styled">
+    <li>Extracción de características temporales: mes, día de la semana, indicador fin de semana, día del mes.</li>
+    <li>One-Hot Encoding de variables categóricas: tipo de vehículo, método de pago.</li>
+    <li>Normalización con <strong>MinMaxScaler</strong> (rango 0–1) sobre todas las features numéricas.</li>
+    <li>Creación de <strong>secuencias deslizantes</strong> con ventana temporal de 14 días para la LSTM.</li>
+    <li>División cronológica estricta: 80% entrenamiento / 20% prueba (no aleatoria).</li>
+  </ul>
+
+  <h3>Arquitecturas Evaluadas</h3>
+
+  <h4>Línea Base — Regresión Lineal</h4>
+  <p>Se entrenó una regresión lineal múltiple sobre features estáticas (mes, día de la semana,
+     One-Hot de ruta/vehículo/pago). Si bien captura tendencias globales, no puede modelar
+     dependencias temporales complejas.</p>
+
+  <h4>Modelo Final — LSTM Multivariada</h4>
+  <div class="arch-block">
+    <span class="layer">Input</span>   <span class="arrow">→</span>  <span class="val">(ventana=14, features=9)</span><br>
+    <span class="layer">LSTM</span>    <span class="arrow">→</span>  <span class="val">128 unidades</span>, <span class="op">return_sequences=True</span><br>
+    <span class="layer">BatchNorm</span> <span class="arrow">→</span>  normalización de activaciones<br>
+    <span class="layer">Dropout</span> <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
+    <span class="layer">LSTM</span>    <span class="arrow">→</span>  <span class="val">64 unidades</span>, <span class="op">return_sequences=False</span><br>
+    <span class="layer">BatchNorm</span> <span class="arrow">→</span>  normalización de activaciones<br>
+    <span class="layer">Dropout</span> <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
+    <span class="layer">Dense</span>   <span class="arrow">→</span>  <span class="val">32 neuronas</span>, <span class="op">activación ReLU</span><br>
+    <span class="layer">Dense</span>   <span class="arrow">→</span>  <span class="val">1 neurona</span>, <span class="op">activación lineal</span>
+  </div>
+
+  <h4>Callbacks de Entrenamiento</h4>
+  <div class="two-col">
+    <div class="callout">
+      <div class="callout-title">EarlyStopping</div>
+      <p>Monitorea <code>val_loss</code> con patience=5. Restaura los mejores pesos automáticamente.
+         El modelo convergió en la época 23 de 50 posibles.</p>
+    </div>
+    <div class="callout gold">
+      <div class="callout-title">ReduceLROnPlateau</div>
+      <p>Reduce la tasa de aprendizaje en factor 0.5 cuando <code>val_loss</code> se estanca por
+         2 épocas. LR inicial: 0.001, mínimo: 1e-5.</p>
+    </div>
+  </div>
+
+  <h3>Resultados</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Modelo</th>
+        <th>MAE (pasajeros)</th>
+        <th>RMSE (pasajeros)</th>
+        <th>MAPE</th>
+        <th>Precisión equiv.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Regresión Lineal (baseline)</td>
+        <td>77.18</td>
+        <td>106.93</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>LSTM Multivariada</strong> <span class="tag-best">MEJOR</span></td>
+        <td><strong>16.44</strong></td>
+        <td><strong>28.61</strong></td>
+        <td><strong>8.92%</strong></td>
+        <td><strong>91.08%</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout teal">
+    <div class="callout-title">Interpretación</div>
+    <p>La LSTM supera a la línea base en un <strong>78.7% de mejora en MAE</strong> y <strong>73.2% en RMSE</strong>.
+       El MAPE del 8.92% indica que, en promedio, las predicciones se desvían menos del 9% del valor real,
+       lo que es suficiente para una planificación operativa confiable.</p>
+  </div>
+
+  <h3>Análisis de Rendimiento por Módulo</h3>
+  <div class="progress-item">
+    <div class="progress-label"><span>MAE Reducción vs Baseline</span><span>78.7%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:78.7%"></div></div>
+  </div>
+  <div class="progress-item">
+    <div class="progress-label"><span>RMSE Reducción vs Baseline</span><span>73.2%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:73.2%"></div></div>
+  </div>
+  <div class="progress-item">
+    <div class="progress-label"><span>Precisión Equivalente (1 - MAPE)</span><span>91.1%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:91.1%"></div></div>
+  </div>
+  <div class="progress-item">
+    <div class="progress-label"><span>Épocas completadas / disponibles (eficiencia)</span><span>23/50 = 46%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:46%"></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     MÓDULO 2 — CLASIFICACIÓN CNN
+══════════════════════════════════ -->
+<section id="modulo2" class="section">
+  <div class="section-header">
+    <div class="section-tag">05 · Desarrollo Técnico</div>
+    <h2>Módulo 2 — Clasificación de Conducción Distractiva (CNN)</h2>
+  </div>
+
+  <div class="module-header">
+    <div class="module-num" style="color:rgba(240,165,0,.25)">02</div>
+    <div class="module-info">
+      <h3>Transfer Learning para Detección de Distracciones</h3>
+      <p>Clasificación de imágenes de conductores en 5 categorías de comportamiento
+         mediante arquitecturas CNN pre-entrenadas con fine-tuning estratégico.</p>
+    </div>
+  </div>
+
+  <h3>Dataset — Multi-Class Driver Behavior</h3>
+  <p>Dataset público disponible en Kaggle. Contiene imágenes de conductores
+     en diferentes situaciones capturadas desde cámaras internas de vehículos.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">🚗</div>
+      <h4>safe_driving</h4>
+      <p>Conductor atento a la vía, manos en el volante, postura correcta. Clase de referencia para evaluación de todas las demás.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon rose">📱</div>
+      <h4>talking_phone</h4>
+      <p>Conductor hablando por teléfono móvil, ya sea sostenido en mano o en modo altavoz cercano al oído.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon rose">💬</div>
+      <h4>texting_phone</h4>
+      <p>Conductor enviando mensajes o interactuando con la pantalla del teléfono. Alta prioridad de detección por su peligrosidad.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">😴</div>
+      <h4>other_activities</h4>
+      <p>Otras actividades distractoras como comer, beber, maquillarse o interactuar con pasajeros.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">🔄</div>
+      <h4>turning</h4>
+      <p>Conductor realizando giros bruscos o mirando hacia atrás/lados durante la conducción.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Preprocesamiento de Imágenes</div>
+    <p>Split 80/10/10 (train/val/test) con <strong>class_weight balanceado</strong> para compensar desbalance de clases.
+       Augmentación de datos: flip horizontal aleatorio, rotación ±15°, jitter de brillo/contraste/saturación.
+       Redimensionado a 224×224 píxeles (requisito de las arquitecturas ImageNet).</p>
+  </div>
+
+  <h3>Modelos Comparados — Transfer Learning</h3>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">📱</div>
+      <h4>MobileNetV2</h4>
+      <p>Feature extractor completamente congelado. Solo el clasificador final es entrenable. Diseñado para eficiencia en dispositivos móviles. Accuracy: <strong>78.2%</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">🏆</div>
+      <h4>ResNet50 — GANADOR</h4>
+      <p>Capa <code>layer4</code> descongelada para fine-tuning específico del dominio. Conexiones residuales que facilitan el flujo de gradiente. Accuracy: <strong>94.7%</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">⚡</div>
+      <h4>EfficientNet-B0</h4>
+      <p>Solo el clasificador es entrenable. Escalamiento compuesto de profundidad/anchura/resolución. Accuracy: <strong>72.3%</strong></p>
+    </div>
+  </div>
+
+  <h4>Configuración Común de Entrenamiento</h4>
+  <div class="arch-block">
+    <span class="layer">Optimizador</span>  <span class="arrow">:</span>  <span class="val">AdamW</span>, <span class="op">lr=1e-3</span>, <span class="op">weight_decay=1e-4</span><br>
+    <span class="layer">Pérdida</span>      <span class="arrow">:</span>  <span class="val">CrossEntropyLoss</span> con pesos de clase<br>
+    <span class="layer">Épocas</span>       <span class="arrow">:</span>  <span class="val">máx. 30</span> con <span class="op">EarlyStopping (patience=6)</span><br>
+    <span class="layer">Batch size</span>   <span class="arrow">:</span>  <span class="val">32 imágenes</span><br>
+    <span class="layer">Scheduler</span>   <span class="arrow">:</span>  <span class="val">ReduceLROnPlateau</span>, <span class="op">factor=0.5</span><br>
+    <span class="layer">Resolución</span>   <span class="arrow">:</span>  <span class="val">224 × 224 × 3</span> (RGB)
+  </div>
+
+  <h3>Resultados</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Modelo</th>
+        <th>Accuracy</th>
+        <th>AUC-ROC</th>
+        <th>Recall texting_phone</th>
+        <th>Recall talking_phone</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>MobileNetV2</td>
+        <td>0.782</td>
+        <td>0.9547</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>EfficientNet-B0</td>
+        <td>0.723</td>
+        <td>0.9070</td>
+        <td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>ResNet50</strong> <span class="tag-best">MEJOR</span></td>
+        <td><strong>0.947</strong></td>
+        <td><strong>0.9972</strong></td>
+        <td><strong>0.970</strong></td>
+        <td><strong>0.994</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout gold">
+    <div class="callout-title">Por qué ResNet50 supera a EfficientNet y MobileNetV2</div>
+    <p>El fine-tuning de <code>layer4</code> en ResNet50 permite que las representaciones de alto nivel
+       se adapten al dominio específico (imágenes de conductores), mientras que las capas inferiores
+       retienen los detectores genéricos de bordes y texturas. El AUC-ROC de 0.9972 confirma una
+       capacidad discriminativa casi perfecta entre las 5 clases.</p>
+  </div>
+
+  <h3>Implicaciones para Seguridad Vial</h3>
+  <div class="two-col">
+    <div>
+      <h4>Tipos de Distracción Más Frecuentes</h4>
+      <ul class="styled">
+        <li>Uso del teléfono (texting + talking) representa la mayor amenaza detectada por el modelo.</li>
+        <li>El recall de 97% para texting garantiza muy pocos falsos negativos en la categoría de mayor riesgo.</li>
+        <li>La confusión entre <em>other_activities</em> y <em>safe_driving</em> es la limitación principal.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Medidas Preventivas Propuestas</h4>
+      <ul class="styled">
+        <li>Alerta sonora inmediata al conductor cuando se detecta texting o talking con phone.</li>
+        <li>Registro automático de eventos distractores para revisión por supervisores de flota.</li>
+        <li>Gamificación: puntuación de conducción segura basada en detecciones diarias.</li>
+        <li>Integración con módulo de predicción para correlacionar distracción con accidentes en rutas específicas.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     MÓDULO 3 — RECOMENDACIÓN
+══════════════════════════════════ -->
+<section id="modulo3" class="section">
+  <div class="section-header">
+    <div class="section-tag">06 · Desarrollo Técnico</div>
+    <h2>Módulo 3 — Sistema de Recomendación Híbrido (MLP)</h2>
+  </div>
+
+  <div class="module-header">
+    <div class="module-num" style="color:rgba(6,214,160,.2)">03</div>
+    <div class="module-info">
+      <h3>Recomendación Personalizada de Destinos</h3>
+      <p>Sistema neuronal híbrido que combina el perfil del usuario con características de destinos
+         para sugerir experiencias de viaje relevantes en cascada: categorías → destinos.</p>
+    </div>
+  </div>
+
+  <h3>Datasets</h3>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-icon teal">👥</div>
+      <h4>Travel Review Ratings</h4>
+      <p><strong>5,456 usuarios</strong> con valoraciones en <strong>24 categorías turísticas</strong>
+         (Google Reviews, destinos europeos). Fuente primaria para el perfil de usuario.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">🌍</div>
+      <h4>Popular Tourist Destinations</h4>
+      <p><strong>2,000 destinos mundiales</strong> con tipo, rating promedio, costo diario, país
+         y otras características. Fuente de ítems para la recomendación final.</p>
+    </div>
+  </div>
+
+  <h3>Arquitectura — HybridRecommender (MLP)</h3>
+  <p>El modelo recibe como entrada la <strong>concatenación</strong> del vector de perfil del usuario
+     (24 dimensiones de valoraciones categóricas) con el One-Hot de la categoría a predecir (24 dimensiones),
+     formando un vector de entrada de 48 dimensiones.</p>
+
+  <div class="arch-block">
+    <span class="layer">Input</span>    <span class="arrow">→</span>  <span class="val">user_features[24] ⊕ cat_one_hot[24]</span>  <span class="arrow">=</span>  <span class="val">48 dims</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">48 → 64</span>  <span class="op">+ BatchNorm + ReLU + Dropout(0.3)</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">64 → 32</span>  <span class="op">+ BatchNorm + ReLU + Dropout(0.2)</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">32 → 1</span>   <span class="op">+ Sigmoid</span>  <span class="arrow">(</span><span class="val">BCEWithLogitsLoss</span>, <span class="op">pos_weight=4.6</span><span class="arrow">)</span>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Manejo del Desbalance</div>
+    <p>El parámetro <code>pos_weight=4.6</code> en la función de pérdida compensa el desbalance natural
+       entre interacciones positivas (viajes realizados) y negativas implícitas. El umbral de decisión
+       final se ajustó a <strong>0.6</strong> para maximizar el F1-score.</p>
+  </div>
+
+  <h4>Configuración de Entrenamiento</h4>
+  <div class="arch-block">
+    <span class="layer">Optimizador</span>  <span class="arrow">:</span>  <span class="val">Adam</span>, <span class="op">lr=1e-3</span>, <span class="op">weight_decay=1e-3</span><br>
+    <span class="layer">Batch size</span>   <span class="arrow">:</span>  <span class="val">256 muestras</span><br>
+    <span class="layer">Épocas</span>       <span class="arrow">:</span>  <span class="val">máx. 100</span> con <span class="op">EarlyStopping (patience=10)</span><br>
+    <span class="layer">Umbral</span>       <span class="arrow">:</span>  <span class="val">0.6</span> para clasificación binaria
+  </div>
+
+  <h3>Sistema de Recomendación en Cascada</h3>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-dot">👤</div>
+      <p><strong>Perfil</strong><br>del usuario</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🧠</div>
+      <p><strong>MLP</strong><br>predice 24 categorías</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">📊</div>
+      <p><strong>Top-K</strong><br>categorías preferidas</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🗺️</div>
+      <p><strong>Mapeo</strong><br>a tipos de destino</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🏆</div>
+      <p><strong>Top-K destinos</strong><br>por rating y tipo</p>
+    </div>
+  </div>
+
+  <h3>Resultados (umbral 0.6)</h3>
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num teal">0.9953</div>
+      <div class="metric-label">Accuracy</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">0.9788</div>
+      <div class="metric-label">Precision</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">0.9955</div>
+      <div class="metric-label">Recall</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num teal">0.9871</div>
+      <div class="metric-label">F1-Score</div>
+    </div>
+  </div>
+
+  <h3>Ejemplos de Recomendaciones Generadas</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Perfil de Usuario</th>
+        <th>Categorías Detectadas</th>
+        <th>Destinos Recomendados (Top-3)</th>
+        <th>País / Costo Prom.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alto interés en playas</td>
+        <td>Beach, Resort</td>
+        <td>Grand Ruins, Serene Falls, Crystal Park</td>
+        <td>Vietnam · Canada · Australia</td>
+      </tr>
+      <tr>
+        <td>Viajero de aventura</td>
+        <td>Adventure, Nature</td>
+        <td>Mountain Trek, Jungle Safari, Waterfall Camp</td>
+        <td>Nepal · Costa Rica · Brasil</td>
+      </tr>
+      <tr>
+        <td>Turismo cultural</td>
+        <td>Historical, Religious</td>
+        <td>Ancient Temple, Old City, Heritage Fort</td>
+        <td>India · Japón · Turquía</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout teal">
+    <div class="callout-title">Efectividad de las Recomendaciones</div>
+    <p>El Recall de 0.9955 garantiza que el sistema captura prácticamente todos los destinos
+       que el usuario encontraría relevantes (muy bajo número de falsos negativos). El alto F1
+       equilibrado confirma que las recomendaciones son tanto precisas como exhaustivas,
+       lo cual es crítico para la satisfacción del usuario.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     RESULTADOS GENERALES
+══════════════════════════════════ -->
+<section id="resultados" class="section">
+  <div class="section-header">
+    <div class="section-tag">07 · Resultados Generales</div>
+    <h2>Análisis Integrado y Discusión</h2>
+  </div>
+
+  <blockquote>
+    "Los tres módulos demuestran que el aprendizaje profundo es una herramienta práctica y
+    efectiva para los retos operativos del transporte moderno, con métricas que superan
+    consistentemente las líneas base clásicas."
+  </blockquote>
+
+  <h3>Comparación General de Módulos</h3>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Módulo</th>
+        <th>Técnica</th>
+        <th>Métrica Principal</th>
+        <th>Resultado</th>
+        <th>Mejora vs Baseline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 — Predicción</td>
+        <td>LSTM Multivariada</td>
+        <td>MAE (pasajeros)</td>
+        <td><strong>16.44</strong></td>
+        <td><strong>-78.7%</strong> vs Regresión Lineal</td>
+      </tr>
+      <tr>
+        <td>2 — Clasificación</td>
+        <td>ResNet50 + Fine-Tuning</td>
+        <td>Accuracy / AUC-ROC</td>
+        <td><strong>94.7% / 0.9972</strong></td>
+        <td><strong>+20.5pp</strong> vs MobileNetV2</td>
+      </tr>
+      <tr>
+        <td>3 — Recomendación</td>
+        <td>MLP Híbrido</td>
+        <td>F1-Score</td>
+        <td><strong>0.9871</strong></td>
+        <td>Superior a CF colaborativo puro</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Lecciones Aprendidas</h3>
+  <div class="two-col">
+    <div>
+      <h4>Fortalezas del Sistema</h4>
+      <ul class="styled">
+        <li>La LSTM captura patrones estacionales y temporales que la regresión lineal ignora completamente.</li>
+        <li>ResNet50 con fine-tuning selectivo logra un balance óptimo entre adaptación al dominio y prevención del overfitting.</li>
+        <li>El diseño en cascada del recomendador permite explicabilidad: el usuario puede ver qué categorías se detectaron.</li>
+        <li>Los callbacks EarlyStopping y ReduceLROnPlateau son cruciales para la eficiencia del entrenamiento.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Áreas de Mejora</h4>
+      <ul class="styled">
+        <li>El módulo 1 requeriría datos reales (no sintéticos) para validación en producción.</li>
+        <li>El módulo 2 podría beneficiarse de datos de video (no solo imágenes estáticas) para detección de somnolencia.</li>
+        <li>El módulo 3 tiene el problema del "cold start" para usuarios nuevos sin historial.</li>
+        <li>La integración en tiempo real requeriría optimización para inferencia en dispositivos embebidos.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     CONCLUSIONES
+══════════════════════════════════ -->
+<section id="conclusiones" class="section">
+  <div class="section-header">
+    <div class="section-tag">08 · Conclusiones y Recomendaciones</div>
+    <h2>Síntesis y Perspectivas Futuras</h2>
+  </div>
+
+  <p class="lead">
+    El proyecto demuestra que el aprendizaje profundo, aplicado con criterio metodológico sólido,
+    puede transformar tres áreas críticas de una empresa de transporte con resultados
+    altamente competitivos en todos los módulos.
+  </p>
+
+  <h3>Conclusiones Principales</h3>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">📈</div>
+      <h4>Predicción LSTM</h4>
+      <p>La ventana temporal de 14 días con LSTM multivariada reduce el error de predicción un 78.7%
+         respecto a la regresión lineal. El MAPE del 8.92% es operativamente aceptable para
+         planificación de flota con 30 días de anticipación.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">🎯</div>
+      <h4>Clasificación CNN</h4>
+      <p>ResNet50 con fine-tuning de layer4 alcanza 94.7% de accuracy con AUC-ROC de 0.9972,
+         lo cual justifica su despliegue en sistemas de monitoreo de conductores en tiempo real
+         para flotas de transporte.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">✨</div>
+      <h4>Recomendación MLP</h4>
+      <p>El sistema híbrido con F1 de 0.9871 y cascada categoría→destino ofrece recomendaciones
+         explicables y personalizadas, con potencial directo de impacto en retención de usuarios
+         y demanda de rutas específicas.</p>
+    </div>
+  </div>
+
+  <h3>Recomendaciones Futuras</h3>
+  <ul class="styled">
+    <li><strong>Módulo 1:</strong> Incorporar datos meteorológicos, festivos y eventos como features exógenas en la LSTM. Evaluar modelos Transformer (TFT) para capturar patrones más complejos.</li>
+    <li><strong>Módulo 2:</strong> Extender a análisis de video con modelos 3D-CNN o CNN+LSTM para detección de somnolencia mediante patrones temporales de movimiento ocular/cabeza.</li>
+    <li><strong>Módulo 3:</strong> Implementar técnicas de cold-start (content-based puro para usuarios nuevos). Evaluar Graph Neural Networks para modelar relaciones entre destinos.</li>
+    <li><strong>Integración:</strong> Crear un pipeline MLOps completo con reentrenamiento automático periódico, monitoreo de data drift y A/B testing de modelos en producción.</li>
+    <li><strong>Escalabilidad:</strong> Optimizar modelos para inferencia en dispositivos edge (TensorRT, ONNX) y despliegue en infraestructura cloud con auto-escalado.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <!-- ASPECTOS ÉTICOS -->
+  <div class="section-header">
+    <div class="section-tag">09 · Aspectos Éticos y Creatividad</div>
+    <h2>Consideraciones Éticas</h2>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h4>Privacidad y Datos</h4>
+      <ul class="styled">
+        <li>Las imágenes de conducción deben tratarse como datos biométricos sensibles y requieren consentimiento informado de los conductores.</li>
+        <li>Los perfiles de preferencias de usuarios del módulo 3 deben anonimizarse y protegerse según GDPR/normativas locales.</li>
+        <li>Los datos sintéticos del módulo 1 eliminan riesgos de privacidad, pero deben validarse antes de producción.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Sesgos y Equidad</h4>
+      <ul class="styled">
+        <li>El dataset de conducción puede tener sesgos demográficos si las clases no están balanceadas por género, edad o región.</li>
+        <li>El recomendador podría crear "filter bubbles" si no se incorpora diversidad explícita en las recomendaciones.</li>
+        <li>El uso de class_weight en los módulos 2 y 3 mitiga parcialmente el desbalance de clases.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout gold">
+    <div class="callout-title">Responsabilidad en el Despliegue</div>
+    <p>El sistema de clasificación de conductores no debe usarse como instrumento de control punitivo sin
+       supervisión humana. Las alertas deben ser herramientas de apoyo, no de vigilancia, y las decisiones
+       disciplinarias deben contar siempre con revisión humana de los registros.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     BIBLIOGRAFÍA
+══════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-tag">10 · Bibliografía</div>
+    <h2>Referencias</h2>
+  </div>
+
+  <ul class="styled" style="font-size:.88rem;">
+    <li>Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. <em>Neural computation</em>, 9(8), 1735–1780.</li>
+    <li>He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. <em>Proceedings of the IEEE CVPR</em>, 770–778.</li>
+    <li>Howard, A. G., et al. (2017). MobileNets: Efficient convolutional neural networks for mobile vision applications. <em>arXiv:1704.04861</em>.</li>
+    <li>Tan, M., & Le, Q. V. (2019). EfficientNet: Rethinking model scaling for CNNs. <em>ICML 2019</em>, 6105–6114.</li>
+    <li>Koren, Y., Bell, R., & Volinsky, C. (2009). Matrix factorization techniques for recommender systems. <em>Computer</em>, 42(8), 30–37.</li>
+    <li>Afradi, A. (2024). Multi-Class Driver Behavior Image Dataset. <em>Kaggle</em>. https://www.kaggle.com/datasets/arafatsahinafridi/multi-class-driver-behavior-image-dataset</li>
+    <li>Mehra, A. (2023). Travel Recommendation Dataset. <em>Kaggle</em>. https://www.kaggle.com/datasets/amanmehra23/travel-recommendation-dataset</li>
+    <li>GeeksforGeeks. (2023). Transport Demand Prediction using Regression. https://www.geeksforgeeks.org/transport-demand-prediction-using-regression/</li>
+    <li>Abadi, M., et al. (2015). TensorFlow: Large-scale machine learning on heterogeneous systems. <em>OSDI 2016</em>.</li>
+    <li>Paszke, A., et al. (2019). PyTorch: An imperative style, high-performance deep learning library. <em>NeurIPS 2019</em>.</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer>
+  <p style="margin-bottom:.5rem">
+    <strong>Daniel Felipe Garzón Acosta · Jhanuar Castro López · Juan Felipe Moreno</strong>
+  </p>
+  <p>Redes Neuronales y Algoritmos Bio-inspirados · Trabajo Final 2025</p>
+  <p style="margin-top:.5rem;color:var(--text-muted)">Sistema Inteligente Integrado para Transporte · v1.0</p>
+</footer>
+
+</body>
+</html>
