@@ -591,8 +591,9 @@
     <div class="meta-card">
       <div class="meta-label">Integrantes</div>
       <div class="meta-value">
-        Daniel Felipe Garzón Acosta
-        <small>Jhanuar Castro López · Juan Felipe Moreno</small>
+        Daniel Felipe Garzón Acosta ·
+        Jhanuar Castro López ·
+        Juan Felipe Moreno
       </div>
     </div>
     <div class="meta-card">
@@ -629,17 +630,14 @@
 
   <div class="cards-grid">
     <div class="card">
-      <div class="card-icon blue">📈</div>
       <h4>Módulo 1 · Predicción LSTM</h4>
       <p>Modelo LSTM multivariado que predice la demanda de pasajeros con <strong>91.08% de precisión</strong> y MAE de 16.44 pasajeros, superando ampliamente la regresión lineal base (MAE 77.18).</p>
     </div>
     <div class="card">
-      <div class="card-icon gold">🎯</div>
       <h4>Módulo 2 · Clasificación CNN</h4>
       <p>Transfer learning sobre ResNet50 que detecta comportamientos distractores en conductores con <strong>94.7% de accuracy</strong> y AUC-ROC de 0.9972 sobre 5 categorías.</p>
     </div>
     <div class="card">
-      <div class="card-icon teal">✨</div>
       <h4>Módulo 3 · Recomendación MLP</h4>
       <p>Sistema híbrido neuronal que sugiere destinos turísticos personalizados con <strong>F1-score de 0.9871</strong>, combinando filtrado colaborativo y basado en contenido.</p>
     </div>
@@ -726,22 +724,18 @@
   <h3>Objetivos del Proyecto</h3>
   <div class="cards-grid">
     <div class="card">
-      <div class="card-icon blue">🔮</div>
       <h4>Objetivo General</h4>
       <p>Desarrollar un sistema inteligente basado en aprendizaje profundo que integre predicción de demanda, clasificación de imágenes y recomendaciones personalizadas para mejorar la eficiencia y seguridad de los servicios de transporte.</p>
     </div>
     <div class="card">
-      <div class="card-icon gold">📐</div>
       <h4>Objetivo Específico 1</h4>
       <p>Entrenar un modelo LSTM con datos históricos para predecir la demanda de transporte en rutas específicas durante los próximos 30 días.</p>
     </div>
     <div class="card">
-      <div class="card-icon teal">👁️</div>
       <h4>Objetivo Específico 2</h4>
       <p>Implementar un modelo de clasificación de imágenes para identificar comportamientos distractores de conductores como uso de teléfono o somnolencia.</p>
     </div>
     <div class="card">
-      <div class="card-icon rose">🧭</div>
       <h4>Objetivo Específico 3</h4>
       <p>Desarrollar un sistema de recomendaciones personalizadas para destinos de viaje basado en el historial y preferencias de los usuarios.</p>
     </div>
@@ -1013,27 +1007,22 @@
 
   <div class="cards-grid">
     <div class="card">
-      <div class="card-icon blue">🚗</div>
       <h4>safe_driving</h4>
       <p>Conductor atento a la vía, manos en el volante, postura correcta. Clase de referencia para evaluación de todas las demás.</p>
     </div>
     <div class="card">
-      <div class="card-icon rose">📱</div>
       <h4>talking_phone</h4>
       <p>Conductor hablando por teléfono móvil, ya sea sostenido en mano o en modo altavoz cercano al oído.</p>
     </div>
     <div class="card">
-      <div class="card-icon rose">💬</div>
       <h4>texting_phone</h4>
       <p>Conductor enviando mensajes o interactuando con la pantalla del teléfono. Alta prioridad de detección por su peligrosidad.</p>
     </div>
     <div class="card">
-      <div class="card-icon gold">😴</div>
       <h4>other_activities</h4>
       <p>Otras actividades distractoras como comer, beber, maquillarse o interactuar con pasajeros.</p>
     </div>
     <div class="card">
-      <div class="card-icon teal">🔄</div>
       <h4>turning</h4>
       <p>Conductor realizando giros bruscos o mirando hacia atrás/lados durante la conducción.</p>
     </div>
@@ -1049,17 +1038,14 @@
   <h3>Modelos Comparados — Transfer Learning</h3>
   <div class="cards-grid">
     <div class="card">
-      <div class="card-icon blue">📱</div>
       <h4>MobileNetV2</h4>
       <p>Feature extractor completamente congelado. Solo el clasificador final es entrenable. Diseñado para eficiencia en dispositivos móviles. Accuracy: <strong>78.2%</strong></p>
     </div>
     <div class="card">
-      <div class="card-icon gold">🏆</div>
       <h4>ResNet50 — GANADOR</h4>
       <p>Capa <code>layer4</code> descongelada para fine-tuning específico del dominio. Conexiones residuales que facilitan el flujo de gradiente. Accuracy: <strong>94.7%</strong></p>
     </div>
     <div class="card">
-      <div class="card-icon teal">⚡</div>
       <h4>EfficientNet-B0</h4>
       <p>Solo el clasificador es entrenable. Escalamiento compuesto de profundidad/anchura/resolución. Accuracy: <strong>72.3%</strong></p>
     </div>
@@ -1162,13 +1148,11 @@
   <h3>Datasets</h3>
   <div class="two-col">
     <div class="card">
-      <div class="card-icon teal">👥</div>
       <h4>Travel Review Ratings</h4>
       <p><strong>5,456 usuarios</strong> con valoraciones en <strong>24 categorías turísticas</strong>
          (Google Reviews, destinos europeos). Fuente primaria para el perfil de usuario.</p>
     </div>
     <div class="card">
-      <div class="card-icon blue">🌍</div>
       <h4>Popular Tourist Destinations</h4>
       <p><strong>2,000 destinos mundiales</strong> con tipo, rating promedio, costo diario, país
          y otras características. Fuente de ítems para la recomendación final.</p>
@@ -1379,21 +1363,18 @@
   <h3>Conclusiones Principales</h3>
   <div class="cards-grid">
     <div class="card">
-      <div class="card-icon blue">📈</div>
       <h4>Predicción LSTM</h4>
       <p>La ventana temporal de 14 días con LSTM multivariada reduce el error de predicción un 78.7%
          respecto a la regresión lineal. El MAPE del 8.92% es operativamente aceptable para
          planificación de flota con 30 días de anticipación.</p>
     </div>
     <div class="card">
-      <div class="card-icon gold">🎯</div>
       <h4>Clasificación CNN</h4>
       <p>ResNet50 con fine-tuning de layer4 alcanza 94.7% de accuracy con AUC-ROC de 0.9972,
          lo cual justifica su despliegue en sistemas de monitoreo de conductores en tiempo real
          para flotas de transporte.</p>
     </div>
     <div class="card">
-      <div class="card-icon teal">✨</div>
       <h4>Recomendación MLP</h4>
       <p>El sistema híbrido con F1 de 0.9871 y cascada categoría→destino ofrece recomendaciones
          explicables y personalizadas, con potencial directo de impacto en retención de usuarios
