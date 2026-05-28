@@ -6,6 +6,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -32,7 +33,13 @@ CLASSES = ["safe_driving", "talking_phone", "texting_phone", "other_activities",
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 resnet_model = models.resnet50()
-resnet_model.fc = nn.Linear(resnet_model.fc.in_features, NUM_CLASSES)
+resnet_model.fc = nn.Sequential(
+    nn.Dropout(0.4),
+    nn.Linear(2048, 512),
+    nn.ReLU(),
+    nn.Dropout(0.3),
+    nn.Linear(512, NUM_CLASSES)
+)
 try:
     resnet_model.load_state_dict(torch.load(os.path.join(MODELS_DIR, 'saved_models', 'best_resnet50.pth'), map_location=device, weights_only=True))
     resnet_model.to(device)
@@ -159,3 +166,5 @@ def predict_demand(req: DemandRequest):
         "tourist_van": [max(0, int(x)) for x in base_van],
         "train_express": [max(0, int(x)) for x in base_train]
     }
+
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend"), html=True), name="frontend")
