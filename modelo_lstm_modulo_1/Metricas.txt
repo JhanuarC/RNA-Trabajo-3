@@ -1,0 +1,8 @@
+==============================
+--- METRICAS DE EVALUACIÓN ---
+==============================
+MAE (Error Absoluto Medio): 15.79 pasajeros
+RMSE (Raíz del Error): 27.20 pasajeros
+MAPE (Error Porcentual): 17.94%
+Precisión Equivalente: 82.06%
+==============================
