@@ -129,6 +129,38 @@ try:
     import joblib
     lstm_model = tf.keras.models.load_model(os.path.join(MODELS_DIR, 'modelo_lstm_modulo_1', 'modelo_lstm_transporte.keras'))
     scaler = joblib.load(os.path.join(MODELS_DIR, 'modelo_lstm_modulo_1', 'scaler_transporte.pkl'))
+    
+    # Load and prepare historical dataset for forecasting
+    df_historical = pd.read_csv(os.path.join(MODELS_DIR, 'modelo_lstm_modulo_1', 'demanda_transporte_global.csv'))
+    df_historical['fecha'] = pd.to_datetime(df_historical['fecha'])
+    
+    columnas_categoricas = ['pais', 'hemisferio', 'car_type', 'payment_method']
+    df_encoded = pd.get_dummies(df_historical, columns=columnas_categoricas, drop_first=False)
+    
+    columnas_features = [
+        'demanda_pasajeros', 'evento_especial', 
+        'pais_Argentina', 'pais_Australia', 'pais_Brazil', 'pais_Canada', 'pais_China', 'pais_Egypt', 
+        'pais_France', 'pais_Germany', 'pais_Greece', 'pais_India', 'pais_Italy', 'pais_Japan', 
+        'pais_Kenya', 'pais_Mexico', 'pais_Morocco', 'pais_New Zealand', 'pais_Peru', 'pais_South Africa', 
+        'pais_Spain', 'pais_Thailand', 'pais_USA', 'pais_Vietnam', 
+        'hemisferio_N', 'hemisferio_S', 'hemisferio_T', 
+        'car_type_luxury_bus', 'car_type_tourist_van', 'car_type_train_express', 
+        'payment_method_card', 'payment_method_cash', 'payment_method_digital_wallet'
+    ]
+    
+    for col in columnas_features:
+        if col not in df_encoded.columns:
+            df_encoded[col] = 0
+            
+    df_encoded = df_encoded[columnas_features].copy()
+    df_encoded['pais_orig'] = df_historical['pais']
+    df_encoded['car_orig'] = df_historical['car_type']
+    df_encoded['pay_orig'] = df_historical['payment_method']
+    df_encoded['fecha_orig'] = df_historical['fecha']
+    
+    df_scaled = df_encoded.copy()
+    df_scaled[columnas_features] = scaler.transform(df_encoded[columnas_features])
+    
     TF_AVAILABLE = True
     print("LSTM loaded successfully.")
 except Exception as e:
@@ -188,23 +220,81 @@ class DemandRequest(BaseModel):
 
 @app.post("/api/predict_demand")
 def predict_demand(req: DemandRequest):
-    days = list(range(1, 31))
-    np.random.seed(req.month + len(req.country))
-    base_luxury = np.random.normal(150, 20, 30)
-    base_van = np.random.normal(200, 30, 30)
-    base_train = np.random.normal(300, 40, 30)
+    if not TF_AVAILABLE:
+        # Fallback to simulation if TF or scaler failed to load
+        days = list(range(1, 31))
+        np.random.seed(req.month + len(req.country))
+        base_luxury = np.random.normal(150, 20, 30)
+        base_van = np.random.normal(200, 30, 30)
+        base_train = np.random.normal(300, 40, 30)
+        for i in range(30):
+            if (i % 7) in [5, 6]:
+                base_luxury[i] += 50
+                base_van[i] += 80
+                base_train[i] += 120
+        return {
+            "days": days,
+            "luxury_bus": [max(0, int(x)) for x in base_luxury],
+            "tourist_van": [max(0, int(x)) for x in base_van],
+            "train_express": [max(0, int(x)) for x in base_train]
+        }
     
-    for i in range(30):
-        if (i % 7) in [5, 6]:
-            base_luxury[i] += 50
-            base_van[i] += 80
-            base_train[i] += 120
+    # LSTM Multi-step Real-time Forecast
+    days = list(range(1, 31))
+    target_start = pd.Timestamp(year=2025, month=req.month, day=1)
+    predictions_by_car = {}
+    
+    for car_type in ['luxury_bus', 'tourist_van', 'train_express']:
+        predictions_by_car[car_type] = np.zeros(30)
+        for payment_method in ['card', 'cash', 'digital_wallet']:
+            mask = (
+                (df_scaled['pais_orig'] == req.country) &
+                (df_scaled['car_orig'] == car_type) &
+                (df_scaled['pay_orig'] == payment_method) &
+                (df_scaled['fecha_orig'] < target_start)
+            )
+            # Take the last 14 days of history
+            history = df_scaled[mask].sort_values('fecha_orig').tail(14)[columnas_features].values
+            
+            # Extract events for the corresponding month of 2025 to replicate holidays
+            event_mask = (
+                (df_scaled['pais_orig'] == req.country) &
+                (df_scaled['car_orig'] == car_type) &
+                (df_scaled['pay_orig'] == payment_method) &
+                (df_scaled['fecha_orig'].dt.month == req.month) &
+                (df_scaled['fecha_orig'].dt.year == 2025)
+            )
+            df_events = df_scaled[event_mask].sort_values('fecha_orig')
+            event_features = df_events['evento_especial'].values
+            if len(event_features) < 30:
+                event_features = np.pad(event_features, (0, 30 - len(event_features)), 'constant')
+            else:
+                event_features = event_features[:30]
+                
+            predictions_scaled = []
+            current_history = history.copy()
+            for d in range(30):
+                input_seq = np.expand_dims(current_history, axis=0)
+                pred_val_scaled = lstm_model.predict(input_seq, verbose=0)[0, 0]
+                predictions_scaled.append(pred_val_scaled)
+                
+                next_features = current_history[-1].copy()
+                next_features[0] = pred_val_scaled
+                next_features[1] = event_features[d]
+                
+                current_history = np.vstack([current_history[1:], next_features])
+                
+            inverse_input = np.zeros((30, len(columnas_features)))
+            inverse_input[:, 0] = predictions_scaled
+            predictions_real = scaler.inverse_transform(inverse_input)[:, 0]
+            
+            predictions_by_car[car_type] += predictions_real
             
     return {
         "days": days,
-        "luxury_bus": [max(0, int(x)) for x in base_luxury],
-        "tourist_van": [max(0, int(x)) for x in base_van],
-        "train_express": [max(0, int(x)) for x in base_train]
+        "luxury_bus": [max(0, int(x)) for x in predictions_by_car['luxury_bus']],
+        "tourist_van": [max(0, int(x)) for x in predictions_by_car['tourist_van']],
+        "train_express": [max(0, int(x)) for x in predictions_by_car['train_express']]
     }
 
 app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend"), html=True), name="frontend")
