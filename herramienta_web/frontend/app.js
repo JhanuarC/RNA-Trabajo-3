@@ -73,6 +73,16 @@ function switchTab(tabId) {
     document.getElementById(tabId).classList.remove('hidden');
 }
 
+// Country flag emojis for display
+const COUNTRY_FLAGS = {
+    'Argentina': '🇦🇷', 'Australia': '🇦🇺', 'Brazil': '🇧🇷', 'Canada': '🇨🇦',
+    'China': '🇨🇳', 'Egypt': '🇪🇬', 'France': '🇫🇷', 'Germany': '🇩🇪',
+    'Greece': '🇬🇷', 'India': '🇮🇳', 'Italy': '🇮🇹', 'Japan': '🇯🇵',
+    'Kenya': '🇰🇪', 'Mexico': '🇲🇽', 'Morocco': '🇲🇦', 'New Zealand': '🇳🇿',
+    'Peru': '🇵🇪', 'South Africa': '🇿🇦', 'Spain': '🇪🇸', 'Thailand': '🇹🇭',
+    'USA': '🇺🇸', 'Vietnam': '🇻🇳'
+};
+
 // MODULE 3: RECOMMENDATION
 document.getElementById('preferences-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -93,12 +103,18 @@ document.getElementById('preferences-form').addEventListener('submit', async (e)
         const data = await response.json();
         
         resultsContainer.innerHTML = '';
-        data.top_categories.forEach(item => {
+        const topCountries = data.top_countries.slice(0, 5);
+        topCountries.forEach((item, idx) => {
             const perc = (item.score * 100).toFixed(1);
+            const flag = COUNTRY_FLAGS[item.country] || '🌍';
+            const adminBtn = currentUserRole === 'admin' 
+                ? `<button class="btn btn-outline btn-sm" onclick="goToDemand('${item.country}')">Ver Demanda →</button>`
+                : '';
             resultsContainer.innerHTML += `
                 <div class="dest-card">
-                    <h4>${item.category.replace('_', ' ')}</h4>
+                    <h4>${flag} ${item.country}</h4>
                     <div class="score">Afinidad: ${perc}%</div>
+                    ${adminBtn}
                 </div>
             `;
         });
@@ -106,6 +122,13 @@ document.getElementById('preferences-form').addEventListener('submit', async (e)
         resultsContainer.innerHTML = `<div class="error-msg">Error de conexión con el servidor. Verifica que el backend esté ejecutándose.</div>`;
     }
 });
+
+// Helper: jump to Module 1 with a pre-selected country
+function goToDemand(country) {
+    const select = document.getElementById('demand-country');
+    select.value = country;
+    switchTab('module1');
+}
 
 // MODULE 1: DEMAND PREDICTION
 async function getDemand() {

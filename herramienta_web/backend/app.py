@@ -82,6 +82,38 @@ category_names = [
 ]
 n_cats = len(category_names)
 
+# Country profiles: each country has affinity weights for the 24 categories
+# Order: churches, resorts, beaches, parks, theatres, museums, malls, zoo,
+#         restaurants, pubs_bars, local_services, burger_pizza, hotels, juice_bars,
+#         art_galleries, dance_clubs, swimming_pools, gyms, bakeries, beauty_spas,
+#         cafes, viewpoints, monuments, gardens
+COUNTRY_PROFILES = {
+    'Argentina':     [2,2,3,3,3,3,3,1,5,4,2,4,3,2,3,4,2,2,4,2,4,4,3,3],
+    'Australia':     [1,4,5,4,2,3,4,4,4,4,3,3,4,4,2,3,5,4,3,3,4,5,2,4],
+    'Brazil':        [2,4,5,3,2,2,3,2,4,4,2,3,3,4,2,5,4,3,3,2,3,4,2,3],
+    'Canada':        [1,3,2,5,2,3,3,3,4,3,3,3,4,3,2,2,3,4,3,3,4,5,2,4],
+    'China':         [2,2,2,4,3,4,5,3,5,2,3,2,4,3,3,2,2,2,3,3,4,4,5,5],
+    'Egypt':         [2,3,3,2,1,5,3,1,4,2,2,2,4,2,2,1,2,1,3,2,3,4,5,2],
+    'France':        [4,3,3,4,4,5,3,2,5,4,3,3,4,2,5,3,2,2,5,3,5,4,5,5],
+    'Germany':       [3,2,2,4,3,4,3,3,4,4,3,3,4,2,3,3,3,4,4,2,4,3,3,4],
+    'Greece':        [4,4,5,3,3,5,2,1,5,4,2,2,4,2,3,3,3,2,3,2,4,5,5,3],
+    'India':         [4,3,4,3,2,3,4,3,5,2,3,3,4,4,3,2,2,3,3,4,3,4,5,4],
+    'Italy':         [5,3,4,3,4,5,3,2,5,3,3,4,4,3,5,2,2,2,4,3,4,4,5,5],
+    'Japan':         [3,3,2,4,3,4,5,3,5,3,4,3,4,3,4,2,3,3,4,4,4,5,4,5],
+    'Kenya':         [1,4,3,5,1,2,2,5,3,2,2,2,3,2,1,1,2,2,1,1,2,5,2,3],
+    'Mexico':        [3,4,5,3,2,3,3,2,5,4,2,4,4,4,3,4,3,2,4,2,3,4,4,3],
+    'Morocco':       [3,3,3,2,1,3,4,1,5,2,3,2,4,3,2,2,2,1,4,4,4,4,4,4],
+    'New Zealand':   [1,3,3,5,2,2,2,3,3,3,2,2,3,3,1,2,3,4,2,2,3,5,2,5],
+    'Peru':          [3,2,2,4,1,3,2,2,4,2,2,2,3,2,2,1,1,2,3,1,3,5,5,3],
+    'South Africa':  [1,4,4,5,2,2,3,5,3,3,2,2,3,2,2,2,3,3,2,2,2,5,2,4],
+    'Spain':         [4,4,5,3,3,4,3,2,5,5,3,3,4,3,4,4,3,2,4,3,4,4,4,4],
+    'Thailand':      [4,4,5,3,1,2,4,2,5,3,3,2,4,4,2,3,4,3,3,5,3,4,4,4],
+    'USA':           [2,3,3,4,4,4,5,3,4,4,4,5,5,4,4,4,4,5,3,3,4,3,3,3],
+    'Vietnam':       [2,3,4,3,1,2,3,2,5,3,3,3,3,3,2,2,2,2,4,3,4,4,3,4],
+}
+
+ALL_COUNTRIES = sorted(COUNTRY_PROFILES.keys())
+
 recom_model = HybridRecommender(n_cats, n_cats)
 try:
     recom_model.load_state_dict(torch.load(os.path.join(MODELS_DIR, 'best_model_recom.pth'), map_location=device, weights_only=True))
@@ -126,6 +158,10 @@ async def classify_driver(file: UploadFile = File(...)):
 class RecommendationRequest(BaseModel):
     user_ratings: List[float]
 
+@app.get("/api/countries")
+def get_countries():
+    return {"countries": ALL_COUNTRIES}
+
 @app.post("/api/recommend_destinations")
 def recommend_destinations(req: RecommendationRequest):
     user_feat = torch.tensor([req.user_ratings], dtype=torch.float32).repeat(n_cats, 1).to(device)
@@ -133,14 +169,18 @@ def recommend_destinations(req: RecommendationRequest):
     
     with torch.no_grad():
         logits = recom_model(user_feat, cat_onehot)
-        probs = torch.sigmoid(logits).cpu().numpy()
-        
-    resultado = []
-    for i, cat in enumerate(category_names):
-        resultado.append({"category": cat, "score": float(probs[i])})
-        
-    resultado = sorted(resultado, key=lambda x: x["score"], reverse=True)
-    return {"top_categories": resultado[:5]}
+        cat_scores = torch.sigmoid(logits).cpu().numpy()
+    
+    # Score each country by dot-product of its profile with the category scores
+    country_scores = []
+    for country, profile in COUNTRY_PROFILES.items():
+        profile_arr = np.array(profile, dtype=np.float32)
+        profile_norm = profile_arr / (profile_arr.sum() + 1e-8)
+        score = float(np.dot(profile_norm, cat_scores))
+        country_scores.append({"country": country, "score": score})
+    
+    country_scores = sorted(country_scores, key=lambda x: x["score"], reverse=True)
+    return {"top_countries": country_scores}
 
 class DemandRequest(BaseModel):
     country: str
