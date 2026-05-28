@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Travel - Agencia Inteligente</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- PANTALLA DE LOGIN -->
+        <div id="login-view" class="view active">
+            <div class="background-overlay"></div>
+            <div class="glass-card login-card">
+                <h1>Global Travel</h1>
+                <p>Agencia de Viajes Inteligente</p>
+                <div class="login-options">
+                    <button class="btn btn-outline w-full" onclick="loginGuest()">Ingreso Cliente (Invitado)</button>
+                    <div class="divider"><span>o</span></div>
+                    <form id="admin-login-form" onsubmit="loginAdmin(event)">
+                        <div class="input-group">
+                            <input type="text" id="username" placeholder="Usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="password" placeholder="Contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">Ingreso Administrador</button>
+                    </form>
+                    <p id="login-error" class="error-msg"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-view" class="view hidden">
+            <nav class="sidebar glass-card">
+                <div class="logo">
+                    <h2>Global Travel</h2>
+                    <span id="user-role-badge" class="badge"></span>
+                </div>
+                <ul class="nav-links">
+                    <li id="nav-module3" onclick="switchTab('module3')" class="active">Planifica tu Viaje</li>
+                    <li id="nav-module1" onclick="switchTab('module1')" class="admin-only hidden">Logística y Despacho</li>
+                    <li id="nav-module2" onclick="switchTab('module2')" class="admin-only hidden">Control de Seguridad</li>
+                </ul>
+                <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+            </nav>
+
+            <main class="content">
+                <!-- MODULO 3: RECOMENDACION -->
+                <section id="module3" class="tab-content active">
+                    <div class="header-section">
+                        <h2>Descubre tu Destino Ideal</h2>
+                        <p>Ajusta tus preferencias y nuestra IA (Red Neuronal Híbrida) encontrará el lugar perfecto para ti.</p>
+                    </div>
+                    <div class="recom-container">
+                        <div class="glass-card recom-form">
+                            <h3>Tus Preferencias (0 a 5)</h3>
+                            <form id="preferences-form">
+                                <div id="sliders-container" class="sliders-grid"></div>
+                                <button type="submit" class="btn btn-primary mt-4">Obtener Recomendación</button>
+                            </form>
+                        </div>
+                        <div class="recom-results" id="recom-results">
+                            <!-- Resultados aquí -->
+                            <div class="placeholder-text">Llena tus preferencias y haz clic en obtener recomendación.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODULO 1: DEMANDA -->
+                <section id="module1" class="tab-content hidden admin-only-content">
+                    <div class="header-section">
+                        <h2>Proyección de Demanda</h2>
+                        <p>Predicción a 30 días para la asignación de vehículos utilizando modelo LSTM.</p>
+                    </div>
+                    <div class="glass-card demand-controls">
+                        <div class="controls-row">
+                            <div class="input-group">
+                                <label>País de Operación</label>
+                                <select id="demand-country">
+                                    <option value="Australia">Australia</option>
+                                    <option value="Brazil">Brasil</option>
+                                    <option value="Canada">Canadá</option>
+                                    <option value="Egypt">Egipto</option>
+                                    <option value="France">Francia</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Mes Base</label>
+                                <select id="demand-month">
+                                    <option value="1">Enero</option>
+                                    <option value="6">Junio</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="getDemand()">Proyectar Demanda</button>
+                        </div>
+                    </div>
+                    <div class="glass-card chart-container mt-4">
+                        <canvas id="demandChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- MODULO 2: SEGURIDAD -->
+                <section id="module2" class="tab-content hidden admin-only-content">
+                    <div class="header-section">
+                        <h2>Centro de Control de Seguridad</h2>
+                        <p>Sube una imagen de la cabina y nuestra red ResNet50 determinará el estado del conductor.</p>
+                    </div>
+                    <div class="security-grid">
+                        <div class="glass-card security-upload">
+                            <div class="upload-box" id="upload-box">
+                                <input type="file" id="driver-image" accept="image/*" onchange="previewImage(event)" class="hidden-input">
+                                <label for="driver-image" class="upload-label">
+                                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                    <span>Haz clic para subir imagen</span>
+                                </label>
+                                <img id="image-preview" class="hidden">
+                            </div>
+                            <button class="btn btn-primary w-full mt-4" onclick="classifyDriver()" id="btn-classify" disabled>Analizar Conductor</button>
+                        </div>
+                        
+                        <div class="glass-card security-result" id="security-result-card">
+                            <h3>Estado del Conductor</h3>
+                            <div id="security-result" class="result-placeholder">
+                                Esperando imagen...
+                            </div>
+                            <audio id="alert-audio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

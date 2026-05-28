@@ -1,0 +1,124 @@
+Sistema Inteligente Integrado para Predicción, Clasificación y Recomendación en la Empresa de Transporte
+
+Como parte de su equipo de trabajo en la empresa de transporte, se enfrentarán a tres retos clave para mejorar la eficiencia operativa, la seguridad vial y la experiencia del usuario. Deberán desarrollar un sistema basado en aprendizaje profundo que aborde las siguientes necesidades de la empresa:
+Predicción de Demanda de Transporte: Anticipar la demanda de transporte en rutas específicas durante los próximos 30 días para
+optimizar la asignación de recursos y mejorar la planificación de los servicios.
+Clasificación de Conducción Distractiva: Detectar comportamientos distractores en los conductores a partir de imágenes, como el uso del teléfono móvil o la somnolencia, con el fin de mejorar la seguridad vial.
+Recomendación de Destinos de Viaje: Desarrollar un sistema que sugiera destinos de viaje personalizados a los usuarios de la empresa, basándose en su historial de viajes y preferencias.
+Problemas a Resolver:
+Predicción de Demanda de Transporte (Series de Tiempo): ¿Cómo predecir la demanda de transporte en rutas específicas en los próximos 30 días para garantizar que la empresa tenga suficientes recursos disponibles (vehículos y personal) en el momento adecuado?
+Clasificación de Imágenes de Conducción Distractiva: ¿Cómo clasificar imágenes de conductores para identificar comportamientos distractores que pongan en riesgo la seguridad de los pasajeros y otros usuarios de la vía?
+Sistema de Recomendación de Destinos de Viaje: ¿Cómo crear un sistema que sugiera destinos de viaje personalizados para los clientes basándose en sus preferencias previas y su comportamiento en la plataforma de reservas de la empresa?
+Objetivo General: 
+Desarrollar un sistema inteligente basado en aprendizaje profundo que integre la predicción de la demanda de transporte, la
+clasificación de comportamientos distractores de los conductores mediante imágenes, y un sistema de recomendaciones personalizadas para mejorar la eficiencia y seguridad de los servicios de transporte.
+Objetivos Específicos:
+Entrenar un modelo de series de tiempo utilizando los datos históricos de la empresa para predecir la demanda de transporte en rutas específicas durante los próximos 30 días.
+Implementar un modelo de clasificación de imágenes para identificar comportamientos distractores de los conductores, como el uso de teléfonos móviles o somnolencia.
+Desarrollar un sistema de recomendaciones personalizadas para sugerir destinos de viaje en función del historial de viajes y las preferencias de los usuarios de la empresa.
+Construir una herramienta web que integre todas las soluciones desarrolladas, permitiendo visualizar los resultados y probar los modelos de predicción, clasificación y recomendación.
+Documentar el proceso de desarrollo en un informe técnico detallado y profesional.
+
+Módulos a Desarrollar:
+
+Módulo 1: Predicción de Demanda de Transporte (Series de Tiempo):
+Entrenar un modelo utilizando un conjunto de datos históricos para predecir la demanda de transporte (por ejemplo, número de pasajeros, cantidad de viajes, etc.) en rutas específicas durante los próximos 30 días.
+
+Entregables:
+Código del modelo con preprocesamiento de datos (por ejemplo, limpieza de datos, transformación de series de
+tiempo).
+Métricas de evaluación (RMSE, MAE, etc.).
+Gráficas de predicción vs. demanda real para cada ruta de transporte.
+Análisis de la estacionalidad y tendencias de la demanda.
+
+
+Módulo 2: Clasificación de Conducción Distractiva (Imágenes): 
+Entrenar un modelo para clasificar imágenes que muestren diferentes comportamientos de conducción distractora, como uso del teléfono móvil, somnolencia, entre otros, en vehículos de la empresa de transporte.
+
+Entregables:
+Modelo entrenado y evaluado, capaz de detectar comportamientos distractores.
+Ejemplos de imágenes clasificadas correctamente y casos erróneos.
+Métricas de evaluación (accuracy, F1-score, precisión, recall).
+Informe sobre los tipos de distracción más frecuentes y posibles medidas preventivas.
+
+
+Módulo 3: Sistema de Recomendación de Destinos de Viaje: 
+Desarrollar un sistema de recomendación personalizado basado en los datos de interacción usuario-producto (historial de viajes de los clientes, preferencias de destino, etc.) para sugerir destinos de viaje dentro de las rutas de transporte de la empresa.
+
+Entregables:
+Código del sistema de recomendación basado en técnicas de filtrado colaborativo, contenido, o híbrido.
+Métricas de evaluación (Precision, Recall, etc.).
+Ejemplos de recomendaciones generadas para diferentes usuarios, mostrando destinos de viaje basados en
+preferencias previas.
+Análisis de la efectividad de las recomendaciones (usuarios satisfechos, incremento en la demanda de
+ciertas rutas, etc.).
+Herramienta Web: 
+Crear una interfaz web que permita interactuar con las soluciones
+desarrolladas.
+
+Funcionalidades mínimas:
+Predicción de demanda: Visualizar gráficos de predicciones.
+Clasificación de productos: Subir imágenes y ver la categoría asignada.
+Sistema de recomendación: Probar recomendaciones personalizadas para diferentes usuarios.
+
+Entregables:
+Código Documentado: 
+Repositorio organizado en GitHub o similar.
+Archivos separados por módulos con instrucciones claras de uso.
+
+Informe Técnico Detallado:
+Incluir los elementos mencionados anteriormente para garantizar calidad y profesionalismo.
+
+Herramienta Web:
+Demo funcional de la herramienta, con capturas de pantalla y/o un enlace para probarla en vivo.
+
+Videos de Demostración:
+Explicación del funcionamiento de cada módulo.
+Pruebas realizadas en la herramienta web.
+Contribuciones individuales de cada integrante del equipo.
+
+
+
+Rúbrica de Evaluación:
+
+Metodología e Ideación (20%):
+Uso de herramientas estructuradas como Canvas o Design Thinking.
+Claridad en la definición del problema y objetivos.
+Implementación Técnica (40%):
+Calidad del código.
+Correcto entrenamiento y evaluación de los modelos.
+Informe Técnico (15%):
+Organización y claridad.
+Profundidad del análisis y resultados presentados.
+Videos (15%):
+Claridad de la demostración y explicaciones.
+Originalidad en la presentación.
+Aspectos Éticos y Creatividad (10%):
+Reflexión sobre el manejo de datos y sesgos.
+Creatividad en la solución y en la interfaz web.
+
+ 
+
+Elementos mínimos esperados en el reporte técnico (es una entrada de blog):
+
+1. Portada: Título, integrantes, fecha, institución y curso.
+
+2. Resumen Ejecutivo: Breve descripción del problema, objetivos, solución, tecnologías, resultados y conclusión.
+
+3. Introducción: Contexto del problema, importancia, objetivos, alcances y limitaciones.
+
+4. Metodología: Explicación de conceptos clave, enfoque general, fases del proyecto, herramientas y tecnologías utilizadas.
+
+5. Desarrollo Técnico por Módulo: Descripción del problema, dataset, preprocesamiento, diseño de modelo, evaluación y resultados.
+
+6. Herramienta Web: Descripción de la interfaz, funcionalidades y tecnologías utilizadas.
+
+7. Resultados Generales y Discusión: Análisis de resultados, comparación con trabajos previos e impacto en comercio electrónico.
+
+8. Conclusiones y Recomendaciones: Resumen de hallazgos y propuestas futuras.
+
+9. Aspectos Éticos y Creatividad: Gestión de datos, privacidad, sesgos, creatividad.
+
+10. Bibliografía: Fuentes citadas en formato APA.
+
+11. Anexos: Código fuente, detalles técnicos adicionales, enlace a videos solicitados y referencias a repositorios.
