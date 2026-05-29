@@ -134,18 +134,36 @@ function goToDemand(country) {
 async function getDemand() {
     const country = document.getElementById('demand-country').value;
     const month = document.getElementById('demand-month').value;
+    const horizon = document.getElementById('demand-horizon').value;
+    
+    // Show loader and clear chart if exists
+    const btn = document.getElementById('btn-demand');
+    btn.innerText = "Calculando...";
+    btn.disabled = true;
+    document.getElementById('demand-loader').classList.remove('hidden');
+    
+    if(demandChartInstance) {
+        demandChartInstance.destroy();
+        demandChartInstance = null;
+    }
     
     try {
         const response = await fetch(`${API_BASE}/predict_demand`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({country: country, month: parseInt(month)})
+            body: JSON.stringify({country: country, month: parseInt(month), horizon: parseInt(horizon)})
         });
         const data = await response.json();
         
+        btn.innerText = "Proyectar Demanda";
+        btn.disabled = false;
+        document.getElementById('demand-loader').classList.add('hidden');
         renderChart(data);
     } catch(err) {
         console.error("Error fetching demand:", err);
+        btn.innerText = "Proyectar Demanda";
+        btn.disabled = false;
+        document.getElementById('demand-loader').classList.add('hidden');
         alert("Error de conexión con el servidor. Verifica que el backend esté ejecutándose.");
     }
 }
@@ -159,11 +177,11 @@ function renderChart(data) {
     demandChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.days.map(d => `Día ${d}`),
+            labels: data.days,
             datasets: [
-                { label: 'Luxury Bus', data: data.luxury_bus, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true},
-                { label: 'Tourist Van', data: data.tourist_van, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', tension: 0.4, fill: true},
-                { label: 'Train Express', data: data.train_express, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true}
+                { label: 'Bus de lujo', data: data.luxury_bus, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', tension: 0.4, fill: true},
+                { label: 'Van Turístico', data: data.tourist_van, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', tension: 0.4, fill: true},
+                { label: 'Tren Express', data: data.train_express, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4, fill: true}
             ]
         },
         options: {

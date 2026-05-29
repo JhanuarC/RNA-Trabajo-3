@@ -217,35 +217,39 @@ def recommend_destinations(req: RecommendationRequest):
 class DemandRequest(BaseModel):
     country: str
     month: int
+    horizon: int = 90
 
 @app.post("/api/predict_demand")
 def predict_demand(req: DemandRequest):
+    horizon_days = req.horizon
+    
+    target_start = pd.Timestamp(year=2026, month=req.month, day=1)
+    prediction_dates = pd.date_range(start=target_start, periods=horizon_days, freq='D')
+    days_str = [d.strftime('%Y-%m-%d') for d in prediction_dates]
+    
     if not TF_AVAILABLE:
-        # Fallback to simulation if TF or scaler failed to load
-        days = list(range(1, 31))
+        # Fallback por si TensorFlow no está disponible
         np.random.seed(req.month + len(req.country))
-        base_luxury = np.random.normal(150, 20, 30)
-        base_van = np.random.normal(200, 30, 30)
-        base_train = np.random.normal(300, 40, 30)
-        for i in range(30):
+        base_luxury = np.random.normal(150, 20, horizon_days)
+        base_van = np.random.normal(200, 30, horizon_days)
+        base_train = np.random.normal(300, 40, horizon_days)
+        for i in range(horizon_days):
             if (i % 7) in [5, 6]:
                 base_luxury[i] += 50
                 base_van[i] += 80
                 base_train[i] += 120
         return {
-            "days": days,
+            "days": days_str,
             "luxury_bus": [max(0, int(x)) for x in base_luxury],
             "tourist_van": [max(0, int(x)) for x in base_van],
             "train_express": [max(0, int(x)) for x in base_train]
         }
     
     # LSTM Multi-step Real-time Forecast
-    days = list(range(1, 31))
-    target_start = pd.Timestamp(year=2025, month=req.month, day=1)
     predictions_by_car = {}
     
     for car_type in ['luxury_bus', 'tourist_van', 'train_express']:
-        predictions_by_car[car_type] = np.zeros(30)
+        predictions_by_car[car_type] = np.zeros(horizon_days)
         for payment_method in ['card', 'cash', 'digital_wallet']:
             mask = (
                 (df_scaled['pais_orig'] == req.country) &
@@ -256,24 +260,28 @@ def predict_demand(req: DemandRequest):
             # Take the last 14 days of history
             history = df_scaled[mask].sort_values('fecha_orig').tail(14)[columnas_features].values
             
-            # Extract events for the corresponding month of 2025 to replicate holidays
-            event_mask = (
+            # Extract events replicating holidays from 2025
+            event_mask_2025 = (
                 (df_scaled['pais_orig'] == req.country) &
                 (df_scaled['car_orig'] == car_type) &
                 (df_scaled['pay_orig'] == payment_method) &
-                (df_scaled['fecha_orig'].dt.month == req.month) &
                 (df_scaled['fecha_orig'].dt.year == 2025)
             )
-            df_events = df_scaled[event_mask].sort_values('fecha_orig')
-            event_features = df_events['evento_especial'].values
-            if len(event_features) < 30:
-                event_features = np.pad(event_features, (0, 30 - len(event_features)), 'constant')
-            else:
-                event_features = event_features[:30]
+            df_events_2025 = df_scaled[event_mask_2025].set_index('fecha_orig')
+            
+            event_features = np.zeros(horizon_days)
+            for i, d in enumerate(prediction_dates):
+                try:
+                    match_date = pd.Timestamp(year=2025, month=d.month, day=d.day)
+                    if match_date in df_events_2025.index:
+                        evt = df_events_2025.loc[match_date, 'evento_especial']
+                        event_features[i] = evt.iloc[0] if isinstance(evt, pd.Series) else evt
+                except:
+                    pass
                 
             predictions_scaled = []
             current_history = history.copy()
-            for d in range(30):
+            for d in range(horizon_days):
                 input_seq = np.expand_dims(current_history, axis=0)
                 pred_val_scaled = lstm_model.predict(input_seq, verbose=0)[0, 0]
                 predictions_scaled.append(pred_val_scaled)
@@ -284,14 +292,14 @@ def predict_demand(req: DemandRequest):
                 
                 current_history = np.vstack([current_history[1:], next_features])
                 
-            inverse_input = np.zeros((30, len(columnas_features)))
+            inverse_input = np.zeros((horizon_days, len(columnas_features)))
             inverse_input[:, 0] = predictions_scaled
             predictions_real = scaler.inverse_transform(inverse_input)[:, 0]
             
             predictions_by_car[car_type] += predictions_real
             
     return {
-        "days": days,
+        "days": days_str,
         "luxury_bus": [max(0, int(x)) for x in predictions_by_car['luxury_bus']],
         "tourist_van": [max(0, int(x)) for x in predictions_by_car['tourist_van']],
         "train_express": [max(0, int(x)) for x in predictions_by_car['train_express']]
