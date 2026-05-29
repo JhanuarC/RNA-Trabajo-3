@@ -563,6 +563,7 @@
     <li><a href="#modulo1">Módulo 1</a></li>
     <li><a href="#modulo2">Módulo 2</a></li>
     <li><a href="#modulo3">Módulo 3</a></li>
+    <li><a href="#herramienta">Herramienta</a></li>
     <li><a href="#resultados">Resultados</a></li>
     <li><a href="#conclusiones">Conclusiones</a></li>
   </ul>
@@ -646,7 +647,7 @@
   <h3>Resultados Clave</h3>
   <div class="metrics-row">
     <div class="metric-box">
-      <div class="metric-num">91.1%</div>
+      <div class="metric-num">82.06%</div>
       <div class="metric-label">Precisión LSTM</div>
     </div>
     <div class="metric-box">
@@ -791,12 +792,57 @@
       <h4>Redes LSTM (Long Short-Term Memory)</h4>
       <p>Variante de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales. Las puertas de entrada, olvido y salida controlan qué información se retiene o descarta en la celda de memoria, resolviendo el problema del gradiente desvaneciente.</p>
 
+      <div class="callout">
+        <div class="callout-title">Justificación del uso de LSTM</div>
+        <p>
+          Se eligió una red LSTM multivariada frente a regresión lineal o redes densas estándar 
+          por la naturaleza secuencial de los datos de demanda. Las LSTM capturan dependencias 
+          de largo plazo esenciales cuando la demanda depende de patrones estacionales que se 
+          repiten semanas atrás — imposibles de modelar con enfoques estáticos. La ventana de 
+          14 días captura exactamente dos ciclos semanales completos, suficiente para aprender 
+          efectos de fin de semana y tendencias de corto plazo sin introducir ruido de 
+          períodos demasiado distantes.
+        </p>
+      </div>
+
       <h4>Transfer Learning</h4>
       <p>Técnica que reutiliza representaciones aprendidas por modelos pre-entrenados en grandes conjuntos de datos (ImageNet). Permite obtener alto rendimiento con datasets pequeños mediante fine-tuning de las capas superiores de la red.</p>
+
+      <div class="callout gold">
+        <div class="callout-title">Justificación del uso de Transfer Learning y Fine-Tuning</div>
+        <p>
+          Se optó por transfer learning con fine-tuning en lugar de entrenar desde cero debido 
+          a las limitaciones del dataset disponible y los recursos computacionales del proyecto. 
+          Los modelos empleados fueron preentrenados sobre ImageNet (1.2M imágenes, 1,000 categorías), 
+          lo que les permite contar con representaciones visuales jerárquicas robustas: desde bordes 
+          y texturas en capas tempranas, hasta patrones semánticos complejos en capas profundas. 
+          Entrenar desde cero exigiría millones de muestras para evitar el sobreajuste, además de 
+          infraestructura de cómputo de alto rendimiento por períodos prolongados. Mediante fine-tuning, 
+          las capas base conservan el conocimiento visual previo mientras el clasificador final se 
+          adapta a las cinco categorías de comportamiento definidas. En ResNet50 se habilitó 
+          adicionalmente el reentrenamiento de <code>layer4</code>, permitiendo una adaptación más 
+          profunda al dominio visual de conducción.
+        </p>
+      </div>
     </div>
+
     <div>
       <h4>Sistemas de Recomendación Híbridos</h4>
       <p>Combinan el filtrado colaborativo (patrones entre usuarios) con el filtrado basado en contenido (características de los ítems) en una arquitectura neuronal unificada, superando las limitaciones de cada enfoque por separado.</p>
+
+      <div class="callout teal">
+        <div class="callout-title">Justificación del Cambio de Dataset</div>
+        <p>
+          El dataset inicial (<code>amanmehra23/travel-recommendation-dataset</code>) presentaba 
+          limitaciones estructurales críticas: 999 registros, 1.6 interacciones por usuario y 
+          solo 5 destinos únicos reales, generando el <strong>cold-start problem</strong> clásico 
+          con un F1 de apenas 0.47 — cercano al azar (F1 aleatorio esperado: 0.38). Se migró a 
+          <code>ishbhms/travel-review-ratings</code>, con 5,456 usuarios, 24 categorías turísticas 
+          y 130,944 interacciones totales (24 por usuario, 15× más que el original), eliminando 
+          completamente el problema y permitiendo al modelo aprender patrones reales de 
+          preferencias turísticas.
+        </p>
+      </div>
 
       <h4>Métricas de Evaluación</h4>
       <p>Para series de tiempo: MAE, RMSE, MAPE. Para clasificación: Accuracy, Precision, Recall, F1-score, AUC-ROC. Para recomendación: Precision@K, Recall@K, F1@K, NDCG.</p>
@@ -903,15 +949,16 @@
 
   <h4>Modelo Final — LSTM Multivariada</h4>
   <div class="arch-block">
-    <span class="layer">Input</span>   <span class="arrow">→</span>  <span class="val">(ventana=14, features=9)</span><br>
-    <span class="layer">LSTM</span>    <span class="arrow">→</span>  <span class="val">128 unidades</span>, <span class="op">return_sequences=True</span><br>
+    <span class="layer">Input</span>    <span class="arrow">→</span>  <span class="val">(ventana=14, features=9)</span><br>
+    <span class="layer">LSTM</span>     <span class="arrow">→</span>  <span class="val">256 unidades</span>, <span class="op">return_sequences=True</span><br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">LSTM</span>     <span class="arrow">→</span>  <span class="val">128 unidades</span>, <span class="op">return_sequences=True</span><br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">LSTM</span>     <span class="arrow">→</span>  <span class="val">64 unidades</span>, <span class="op">return_sequences=False</span><br>
     <span class="layer">BatchNorm</span> <span class="arrow">→</span>  normalización de activaciones<br>
-    <span class="layer">Dropout</span> <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
-    <span class="layer">LSTM</span>    <span class="arrow">→</span>  <span class="val">64 unidades</span>, <span class="op">return_sequences=False</span><br>
-    <span class="layer">BatchNorm</span> <span class="arrow">→</span>  normalización de activaciones<br>
-    <span class="layer">Dropout</span> <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
-    <span class="layer">Dense</span>   <span class="arrow">→</span>  <span class="val">32 neuronas</span>, <span class="op">activación ReLU</span><br>
-    <span class="layer">Dense</span>   <span class="arrow">→</span>  <span class="val">1 neurona</span>, <span class="op">activación lineal</span>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">Dense</span>    <span class="arrow">→</span>  <span class="val">32 neuronas</span>, <span class="op">activación ReLU</span><br>
+    <span class="layer">Dense</span>    <span class="arrow">→</span>  <span class="val">1 neurona</span>, <span class="op">activación lineal</span>
   </div>
 
   <h4>Callbacks de Entrenamiento</h4>
@@ -942,44 +989,44 @@
     <tbody>
       <tr>
         <td>Regresión Lineal (baseline)</td>
-        <td>77.18</td>
-        <td>106.93</td>
+        <td>143.37</td>
+        <td>183.04</td>
         <td>—</td>
         <td>—</td>
       </tr>
       <tr>
         <td><strong>LSTM Multivariada</strong> <span class="tag-best">MEJOR</span></td>
-        <td><strong>16.44</strong></td>
-        <td><strong>28.61</strong></td>
-        <td><strong>8.92%</strong></td>
-        <td><strong>91.08%</strong></td>
+        <td><strong>15.79</strong></td>
+        <td><strong>27.20</strong></td>
+        <td><strong>17.94%</strong></td>
+        <td><strong>82.06%</strong></td>
       </tr>
     </tbody>
   </table>
 
   <div class="callout teal">
     <div class="callout-title">Interpretación</div>
-    <p>La LSTM supera a la línea base en un <strong>78.7% de mejora en MAE</strong> y <strong>73.2% en RMSE</strong>.
-       El MAPE del 8.92% indica que, en promedio, las predicciones se desvían menos del 9% del valor real,
+    <p>La LSTM supera a la línea base en un <strong>110.1% de mejora en MAE</strong> y <strong>148.6% en RMSE</strong>.
+       El MAPE del 17.94% indica que, en promedio, las predicciones se desvían menos del 18% del valor real,
        lo que es suficiente para una planificación operativa confiable.</p>
   </div>
 
   <h3>Análisis de Rendimiento por Módulo</h3>
   <div class="progress-item">
-    <div class="progress-label"><span>MAE Reducción vs Baseline</span><span>78.7%</span></div>
-    <div class="progress-bar"><div class="progress-fill" style="width:78.7%"></div></div>
+    <div class="progress-label"><span>MAE Reducción vs Baseline</span><span>110.1%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:110.1%"></div></div>
   </div>
   <div class="progress-item">
-    <div class="progress-label"><span>RMSE Reducción vs Baseline</span><span>73.2%</span></div>
-    <div class="progress-bar"><div class="progress-fill" style="width:73.2%"></div></div>
+    <div class="progress-label"><span>RMSE Reducción vs Baseline</span><span>148.6%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:148.6%"></div></div>
   </div>
   <div class="progress-item">
-    <div class="progress-label"><span>Precisión Equivalente (1 - MAPE)</span><span>91.1%</span></div>
-    <div class="progress-bar"><div class="progress-fill" style="width:91.1%"></div></div>
+    <div class="progress-label"><span>Precisión Equivalente</span><span>82.06%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:82.06%"></div></div>
   </div>
   <div class="progress-item">
-    <div class="progress-label"><span>Épocas completadas / disponibles (eficiencia)</span><span>23/50 = 46%</span></div>
-    <div class="progress-bar"><div class="progress-fill" style="width:46%"></div></div>
+    <div class="progress-label"><span>Épocas completadas / disponibles (eficiencia)</span><span>30/50 = 60%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
   </div>
 </section>
 
@@ -1051,15 +1098,50 @@
     </div>
   </div>
 
-  <h4>Configuración Común de Entrenamiento</h4>
+  <h3>Arquitectura de modelos</h3>
+
+    <!-- MobileNetV2 -->
+  <h4>MobileNetV2</h4>
   <div class="arch-block">
-    <span class="layer">Optimizador</span>  <span class="arrow">:</span>  <span class="val">AdamW</span>, <span class="op">lr=1e-3</span>, <span class="op">weight_decay=1e-4</span><br>
-    <span class="layer">Pérdida</span>      <span class="arrow">:</span>  <span class="val">CrossEntropyLoss</span> con pesos de clase<br>
-    <span class="layer">Épocas</span>       <span class="arrow">:</span>  <span class="val">máx. 30</span> con <span class="op">EarlyStopping (patience=6)</span><br>
-    <span class="layer">Batch size</span>   <span class="arrow">:</span>  <span class="val">32 imágenes</span><br>
-    <span class="layer">Scheduler</span>   <span class="arrow">:</span>  <span class="val">ReduceLROnPlateau</span>, <span class="op">factor=0.5</span><br>
-    <span class="layer">Resolución</span>   <span class="arrow">:</span>  <span class="val">224 × 224 × 3</span> (RGB)
+    <span class="layer">Input</span>    <span class="arrow">→</span>  <span class="val">(3, 224, 224)</span><br>
+    <span class="layer">MobileNetV2</span> <span class="arrow">→</span>  <span class="val">features congeladas</span>, <span class="op">pretrained ImageNet</span><br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">last_channel → 256</span><br>
+    <span class="layer">ReLU</span>     <span class="arrow">→</span>  activación<br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">256 → 5 clases</span>
   </div>
+
+  <!-- ResNet50 -->
+  <h4>ResNet50</h4>
+  <div class="arch-block">
+    <span class="layer">Input</span>    <span class="arrow">→</span>  <span class="val">(3, 224, 224)</span><br>
+    <span class="layer">ResNet50</span> <span class="arrow">→</span>  <span class="val">solo layer4 entrenable</span>, <span class="op">pretrained ImageNet</span><br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">2048 → 512</span><br>
+    <span class="layer">ReLU</span>     <span class="arrow">→</span>  activación<br>
+    <span class="layer">Dropout</span>  <span class="arrow">→</span>  <span class="val">p=0.3</span><br>
+    <span class="layer">Linear</span>   <span class="arrow">→</span>  <span class="val">512 → 5 clases</span>
+  </div>
+
+  <!-- EfficientNet-B0 -->
+  <h4>EfficientNet-B0</h4>
+  <div class="arch-block">
+    <span class="layer">Input</span>       <span class="arrow">→</span>  <span class="val">(3, 224, 224)</span><br>
+    <span class="layer">EfficientNet-B0</span> <span class="arrow">→</span>  <span class="val">features congeladas</span>, <span class="op">pretrained ImageNet</span><br>
+    <span class="layer">Dropout</span>     <span class="arrow">→</span>  <span class="val">p=0.4</span><br>
+    <span class="layer">Linear</span>      <span class="arrow">→</span>  <span class="val">1280 → 5 clases</span>
+  </div>
+
+    <h4>Configuración Común de Entrenamiento</h4>
+    <div class="arch-block">
+      <span class="layer">Optimizador</span>  <span class="arrow">:</span>  <span class="val">AdamW</span>, <span class="op">lr=1e-3</span>, <span class="op">weight_decay=1e-4</span><br>
+      <span class="layer">Pérdida</span>      <span class="arrow">:</span>  <span class="val">CrossEntropyLoss</span> con pesos de clase<br>
+      <span class="layer">Épocas</span>       <span class="arrow">:</span>  <span class="val">máx. 30</span> con <span class="op">EarlyStopping (patience=6)</span><br>
+      <span class="layer">Batch size</span>   <span class="arrow">:</span>  <span class="val">32 imágenes</span><br>
+      <span class="layer">Scheduler</span>   <span class="arrow">:</span>  <span class="val">ReduceLROnPlateau</span>, <span class="op">factor=0.5</span><br>
+      <span class="layer">Resolución</span>   <span class="arrow">:</span>  <span class="val">224 × 224 × 3</span> (RGB)
+    </div>
 
   <h3>Resultados</h3>
   <table class="compare-table">
@@ -1077,15 +1159,15 @@
         <td>MobileNetV2</td>
         <td>0.782</td>
         <td>0.9547</td>
-        <td>—</td>
-        <td>—</td>
+        <td>0.758</td>
+        <td>0.844</td>
       </tr>
       <tr>
         <td>EfficientNet-B0</td>
         <td>0.723</td>
         <td>0.9070</td>
-        <td>—</td>
-        <td>—</td>
+        <td>0.782</td>
+        <td>0.794</td>
       </tr>
       <tr>
         <td><strong>ResNet50</strong> <span class="tag-best">MEJOR</span></td>
@@ -1272,11 +1354,148 @@
 </section>
 
 <!-- ══════════════════════════════════
+     HERRAMIENTA WEB
+══════════════════════════════════ -->
+<section id="herramienta" class="section">
+  <div class="section-header">
+    <div class="section-tag">07 · Herramienta Web</div>
+    <h2>Interfaz Web Integrada</h2>
+  </div>
+
+  <p class="lead">
+    Se desarrolló una aplicación web funcional que integra los tres módulos del sistema 
+    en una interfaz unificada, permitiendo interactuar con los modelos entrenados en 
+    tiempo real sin necesidad de conocimientos técnicos.
+  </p>
+
+  <h3>Arquitectura de la Aplicación</h3>
+  <div class="two-col">
+    <div>
+      <h4>Backend — FastAPI</h4>
+      <p>El servidor está construido sobre <strong>FastAPI</strong>, un framework Python de alto 
+        rendimiento para APIs REST. Expone tres endpoints principales que conectan directamente 
+        con los modelos entrenados (ResNet50, LSTM y HybridRecommender), con soporte automático 
+        de CORS para comunicación con el frontend.</p>
+    </div>
+    <div>
+      <h4>Frontend — Interfaz Estática</h4>
+      <p>El frontend es servido directamente por FastAPI mediante <code>StaticFiles</code>, 
+        eliminando la necesidad de un servidor web separado. La interfaz consume los endpoints 
+        REST del backend para visualizar predicciones, clasificaciones y recomendaciones 
+        en tiempo real.</p>
+    </div>
+  </div>
+
+  <h3>Endpoints de la API</h3>
+  <div class="arch-block">
+    <span class="layer">POST</span>  <span class="arrow">/api/classify_driver</span>     <span class="val">→ Clasificación de imagen de conductor</span>   <span class="op">(Módulo 2)</span><br>
+    <span class="layer">POST</span>  <span class="arrow">/api/predict_demand</span>       <span class="val">→ Predicción de demanda 30 días</span>          <span class="op">(Módulo 1)</span><br>
+    <span class="layer">POST</span>  <span class="arrow">/api/recommend_destinations</span><span class="val">→ Recomendación de destinos</span>             <span class="op">(Módulo 3)</span><br>
+    <span class="layer">GET</span>   <span class="arrow">/api/countries</span>            <span class="val">→ Lista de países disponibles</span>           <span class="op">(Módulo 1)</span>
+  </div>
+
+  <h3>Funcionalidades por Módulo</h3>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon blue">📈</div>
+      <h4>Predicción de Demanda</h4>
+      <p>El usuario selecciona un <strong>país</strong> (22 disponibles) y un <strong>mes</strong>. 
+        El sistema genera una predicción de 30 días para los tres tipos de vehículo 
+        (luxury bus, tourist van, train express), visualizada en gráficos interactivos. 
+        Si TensorFlow no está disponible, activa automáticamente un modo de simulación.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon gold">🚗</div>
+      <h4>Clasificación de Conductor</h4>
+      <p>El usuario sube una imagen desde su dispositivo. El backend la procesa con 
+        <strong>ResNet50</strong> (redimensionada a 224×224, normalizada con medias ImageNet) 
+        y retorna la clase predicha, su probabilidad y las probabilidades de las 5 clases 
+        en formato JSON.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon teal">🗺️</div>
+      <h4>Recomendación de Destinos</h4>
+      <p>El usuario ingresa sus valoraciones en las 24 categorías turísticas. El modelo 
+        <strong>HybridRecommender</strong> predice afinidad por categoría y las cruza con 
+        los perfiles de 22 países mediante producto punto, retornando un ranking de 
+        destinos ordenados por score de compatibilidad.</p>
+    </div>
+  </div>
+
+  <h3>Stack Tecnológico de la Herramienta</h3>
+  <div class="tech-badges">
+    <span class="badge blue">FastAPI</span>
+    <span class="badge blue">Python 3.11</span>
+    <span class="badge blue">Uvicorn</span>
+    <span class="badge gold">PyTorch</span>
+    <span class="badge gold">TensorFlow / Keras</span>
+    <span class="badge gold">Joblib</span>
+    <span class="badge teal">Pillow (PIL)</span>
+    <span class="badge teal">NumPy · Pandas</span>
+    <span class="badge">CORS Middleware</span>
+    <span class="badge">StaticFiles</span>
+  </div>
+
+  <h3>Flujo de Inferencia</h3>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-dot">👤</div>
+      <p><strong>Usuario</strong><br>interactúa con la interfaz</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🌐</div>
+      <p><strong>Frontend</strong><br>envía request REST</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">⚙️</div>
+      <p><strong>FastAPI</strong><br>procesa y valida</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">🧠</div>
+      <p><strong>Modelo</strong><br>LSTM / ResNet / MLP</p>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-dot">📊</div>
+      <p><strong>Respuesta JSON</strong><br>visualizada al usuario</p>
+    </div>
+  </div>
+
+  <h3>Decisiones Técnicas Relevantes</h3>
+
+  <div class="two-col">
+    <div class="callout">
+      <div class="callout-title">Compatibilidad GPU / CPU</div>
+      <p>Los modelos PyTorch detectan automáticamente disponibilidad de CUDA 
+        (<code>torch.device("cuda" if torch.cuda.is_available() else "cpu")</code>), 
+        garantizando que la aplicación funcione tanto en servidores con GPU como 
+        en entornos locales sin aceleración.</p>
+    </div>
+    <div class="callout gold">
+      <div class="callout-title">Modo Fallback para LSTM</div>
+      <p>Si TensorFlow o el scaler no pueden cargarse, el endpoint 
+        <code>/api/predict_demand</code> activa automáticamente un generador de 
+        simulación estadística con patrones realistas de fin de semana, garantizando 
+        que la interfaz siempre sea funcional.</p>
+    </div>
+  </div>
+
+  <div class="callout teal">
+    <div class="callout-title">Perfiles de País para Recomendación</div>
+    <p>Se definieron manualmente <strong>22 perfiles de país</strong>, cada uno con 
+      pesos de afinidad para las 24 categorías turísticas, basados en características 
+      culturales y turísticas reales de cada destino. Este conocimiento experto actúa 
+      como una capa de filtrado por conocimiento que enriquece las predicciones 
+      puramente estadísticas del modelo neuronal.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
      RESULTADOS GENERALES
 ══════════════════════════════════ -->
 <section id="resultados" class="section">
   <div class="section-header">
-    <div class="section-tag">07 · Resultados Generales</div>
+    <div class="section-tag">08 · Resultados Generales</div>
     <h2>Análisis Integrado y Discusión</h2>
   </div>
 
@@ -1302,8 +1521,8 @@
         <td>1 — Predicción</td>
         <td>LSTM Multivariada</td>
         <td>MAE (pasajeros)</td>
-        <td><strong>16.44</strong></td>
-        <td><strong>-78.7%</strong> vs Regresión Lineal</td>
+        <td><strong>15.79</strong></td> 
+        <td><strong>148.6%</strong> vs Regresión Lineal</td>
       </tr>
       <tr>
         <td>2 — Clasificación</td>
@@ -1350,7 +1569,7 @@
 ══════════════════════════════════ -->
 <section id="conclusiones" class="section">
   <div class="section-header">
-    <div class="section-tag">08 · Conclusiones y Recomendaciones</div>
+    <div class="section-tag">09 · Conclusiones y Recomendaciones</div>
     <h2>Síntesis y Perspectivas Futuras</h2>
   </div>
 
@@ -1395,7 +1614,7 @@
 
   <!-- ASPECTOS ÉTICOS -->
   <div class="section-header">
-    <div class="section-tag">09 · Aspectos Éticos y Creatividad</div>
+    <div class="section-tag">10 · Aspectos Éticos y Creatividad</div>
     <h2>Consideraciones Éticas</h2>
   </div>
 
@@ -1431,7 +1650,7 @@
 ══════════════════════════════════ -->
 <section class="section">
   <div class="section-header">
-    <div class="section-tag">10 · Bibliografía</div>
+    <div class="section-tag">11 · Bibliografía</div>
     <h2>Referencias</h2>
   </div>
 

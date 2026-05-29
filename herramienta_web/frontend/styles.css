@@ -172,6 +172,164 @@ body {
 .class-label-safe { color: var(--accent); font-size: 2rem; font-weight: 800; margin-bottom: 10px;}
 .prob-text { color: var(--text-main); font-size: 1.1rem; }
 
+/* ============================================
+   MODEL INFO CARDS (Detalles del modelo)
+   ============================================ */
+.model-info {
+    padding: 0;
+    overflow: hidden;
+}
+.model-info summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: background 0.2s;
+}
+.model-info summary::-webkit-details-marker { display: none; }
+.model-info summary:hover { background: rgba(59, 130, 246, 0.05); }
+.model-info-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.model-info-chevron {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+.model-info[open] .model-info-chevron { transform: rotate(180deg); }
+
+.model-info-body {
+    padding: 0 24px 24px 24px;
+    border-top: 1px solid var(--card-border);
+}
+.model-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+.model-info-block {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px;
+}
+.model-info-block h4 {
+    color: var(--primary);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+.model-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.model-info-list li {
+    color: var(--text-main);
+    font-size: 0.9rem;
+    padding: 5px 0;
+    line-height: 1.45;
+}
+.model-info-list li b { color: var(--accent); font-weight: 600; }
+.model-info-list li code {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+}
+
+/* Metric pills */
+.metrics-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+.metric-pill {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    transition: transform 0.2s;
+}
+.metric-pill:hover { transform: translateY(-2px); border-color: var(--primary); }
+.metric-pill span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.metric-pill b {
+    font-size: 1.15rem;
+    color: var(--text-main);
+    font-weight: 700;
+    margin-top: 2px;
+}
+.metric-highlight {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+    border-color: rgba(16, 185, 129, 0.4);
+}
+.metric-highlight b { color: var(--accent); }
+
+/* Metrics table (módulo 2) */
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.metrics-table th, .metrics-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+}
+.metrics-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+.metrics-table tr.winner {
+    background: rgba(16, 185, 129, 0.1);
+}
+.metrics-table tr.winner td { color: var(--accent); }
+
+/* Class tags (módulo 2) */
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 6px;
+    font-family: 'Consolas', monospace;
+}
+.tag-safe   { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
+.tag-danger { background: rgba(239, 68, 68, 0.2);  color: var(--danger); }
+.tag-warn   { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-color); }

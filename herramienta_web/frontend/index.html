@@ -68,14 +68,66 @@
                             <div class="placeholder-text">Llena tus preferencias y haz clic en obtener recomendación.</div>
                         </div>
                     </div>
+
+                    <!-- DETALLES DEL MODELO -->
+                    <details class="glass-card model-info mt-4">
+                        <summary>
+                            <span class="model-info-title">Detalles del Modelo · MLP Híbrido + Cascada</span>
+                            <span class="model-info-chevron">▾</span>
+                        </summary>
+                        <div class="model-info-body">
+                            <div class="model-info-grid">
+                                <div class="model-info-block">
+                                    <h4>Arquitectura</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Entrada:</b> 24 ratings de usuario + 24 one-hot de categoría = <b>48 features</b></li>
+                                        <li>Linear(48 → 64) → BatchNorm → ReLU → Dropout(0.3)</li>
+                                        <li>Linear(64 → 32) → BatchNorm → ReLU → Dropout(0.2)</li>
+                                        <li>Linear(32 → 1) + Sigmoid</li>
+                                        <li><b>Parámetros totales:</b> 5,441</li>
+                                        <li><b>Cascada:</b> Top-K categorías → mapeo a Type (Beach, Religious, Nature…) → Top destinos por Avg Rating</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Configuración de Entrenamiento</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Dataset:</b> Google Reviews Travel Ratings (Kaggle) · 5,456 usuarios · 24 categorías · 130,944 interacciones</li>
+                                        <li><b>Split:</b> 80% train / 20% test (random_state=42)</li>
+                                        <li><b>Loss:</b> BCEWithLogitsLoss (pos_weight ≈ 4.60 por desbalance 17.85% positivos)</li>
+                                        <li><b>Optimizador:</b> Adam (lr = 1e-3, weight_decay = 1e-3)</li>
+                                        <li><b>Batch size:</b> 256 · <b>Épocas máx:</b> 100 · <b>Early stopping:</b> patience = 10</li>
+                                        <li><b>Umbral óptimo:</b> 0.60 (selección automática por F1)</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Métricas (Test)</h4>
+                                    <div class="metrics-grid">
+                                        <div class="metric-pill"><span>Accuracy</span><b>0.9938</b></div>
+                                        <div class="metric-pill"><span>Precision</span><b>0.9695</b></div>
+                                        <div class="metric-pill"><span>Recall</span><b>0.9968</b></div>
+                                        <div class="metric-pill"><span>F1</span><b>0.9829</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </section>
 
                 <!-- MODULO 1: DEMANDA -->
                 <section id="module1" class="tab-content hidden admin-only-content">
                     <div class="header-section">
                         <h2>Proyección de Demanda</h2>
-                        <p>Predicción a 30 días para la asignación de vehículos utilizando modelo LSTM.</p>
+                        <p>Predicción a 30 días para la asignación de vehículos por país, tipo de transporte y método de pago utilizando una red neuronal recurrente <b>LSTM multivariada</b> entrenada sobre 22 países y 144,738 registros diarios (2024-2025).</p>
                     </div>
+
+                    <!-- BANNER DE MÉTRICAS RÁPIDAS -->
+                    <div class="metrics-banner">
+                        <div class="metric-pill"><span>MAE</span><b>15.79 pas.</b></div>
+                        <div class="metric-pill"><span>RMSE</span><b>27.20 pas.</b></div>
+                        <div class="metric-pill"><span>MAPE</span><b>17.94%</b></div>
+                        <div class="metric-pill metric-highlight"><span>Precisión</span><b>82.06%</b></div>
+                    </div>
+
                     <div class="glass-card demand-controls">
                         <div class="controls-row">
                             <div class="input-group">
@@ -128,6 +180,63 @@
                     <div class="glass-card chart-container mt-4">
                         <canvas id="demandChart"></canvas>
                     </div>
+
+                    <!-- DETALLES DEL MODELO LSTM -->
+                    <details class="glass-card model-info mt-4" open>
+                        <summary>
+                            <span class="model-info-title">Detalles del Modelo · LSTM Multivariado (Keras / TensorFlow)</span>
+                            <span class="model-info-chevron">▾</span>
+                        </summary>
+                        <div class="model-info-body">
+                            <div class="model-info-grid">
+                                <div class="model-info-block">
+                                    <h4>Arquitectura</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Entrada:</b> secuencias 3D <code>(muestras, 14 días, 33 features)</code></li>
+                                        <li>LSTM(256, return_sequences=True) → Dropout(0.4)</li>
+                                        <li>LSTM(128, return_sequences=True) → Dropout(0.4)</li>
+                                        <li>LSTM(64) → BatchNormalization → Dropout(0.4)</li>
+                                        <li>Dense(32, ReLU) → Dense(1, Linear)</li>
+                                        <li><b>Salida:</b> demanda de pasajeros (regresión)</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Features (33)</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Numéricas:</b> demanda_pasajeros (target lag), evento_especial</li>
+                                        <li><b>One-Hot País (22):</b> Argentina, Australia, Brazil, …, Vietnam</li>
+                                        <li><b>One-Hot Hemisferio (3):</b> N, S, T (tropical/monzónico)</li>
+                                        <li><b>One-Hot car_type (3):</b> luxury_bus, tourist_van, train_express</li>
+                                        <li><b>One-Hot payment_method (3):</b> cash, card, digital_wallet</li>
+                                        <li><b>Escalamiento:</b> MinMaxScaler en rango (0, 1) — persistido en <code>scaler_transporte.pkl</code></li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Configuración de Entrenamiento</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Dataset:</b> demanda_transporte_global.csv · 144,738 registros · 22 países · 2024-2025</li>
+                                        <li><b>Ventana temporal:</b> 14 días · <b>Split cronológico:</b> 80% train / 20% test</li>
+                                        <li><b>Loss:</b> MSE · <b>Métrica:</b> MAE</li>
+                                        <li><b>Optimizador:</b> Adam (lr = 1e-3, clipvalue = 1.0)</li>
+                                        <li><b>Batch size:</b> 64 · <b>Épocas máx:</b> 50 (early stopping época 25)</li>
+                                        <li><b>Callbacks:</b> EarlyStopping(patience=5, restore_best_weights) + ReduceLROnPlateau(factor=0.5, patience=2, min_lr=1e-5)</li>
+                                        <li><b>Hardware:</b> GPU (TensorFlow + CUDA)</li>
+                                        <li><b>Artefactos:</b> <code>modelo_lstm_transporte.keras</code>, <code>scaler_transporte.pkl</code></li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Componentes simulados en el dataset</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Estacionalidad climática</b> por hemisferio (verano N ×1.8, verano S ×1.9, monzones ×0.5)</li>
+                                        <li><b>Eventos especiales:</b> Año Nuevo Chino (CN/VN/TH +200), Navidad global (+80), Golden Week Japón (+150)</li>
+                                        <li><b>Estacionalidad semanal:</b> picos viernes/sábado (+30), valle domingo (-40)</li>
+                                        <li><b>Tendencia post-pandemia</b> creciente + ruido gaussiano (σ=12)</li>
+                                        <li><b>Quincenas:</b> bonus al método de pago preferido del país los días 15 y 30</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </section>
 
                 <!-- MODULO 2: SEGURIDAD -->
@@ -157,6 +266,62 @@
                             <audio id="alert-audio" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
                         </div>
                     </div>
+
+                    <!-- DETALLES DEL MODELO RESNET50 -->
+                    <details class="glass-card model-info mt-4">
+                        <summary>
+                            <span class="model-info-title">Detalles del Modelo · ResNet50 (PyTorch, Transfer Learning)</span>
+                            <span class="model-info-chevron">▾</span>
+                        </summary>
+                        <div class="model-info-body">
+                            <div class="model-info-grid">
+                                <div class="model-info-block">
+                                    <h4>Arquitectura</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Base:</b> ResNet50 preentrenada en ImageNet (IMAGENET1K_V1)</li>
+                                        <li><b>Fine-tuning:</b> congelados todos los bloques excepto <code>layer4</code></li>
+                                        <li><b>Cabeza personalizada:</b><br>Dropout(0.4) → Linear(2048 → 512) → ReLU → Dropout(0.3) → Linear(512 → 5)</li>
+                                        <li><b>Parámetros entrenables:</b> 16,016,389 / 24,559,685 (65.2%)</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Clases (5)</h4>
+                                    <ul class="model-info-list">
+                                        <li><span class="tag tag-safe">safe_driving</span> Conducción segura</li>
+                                        <li><span class="tag tag-danger">talking_phone</span> Hablando por celular (crítica)</li>
+                                        <li><span class="tag tag-danger">texting_phone</span> Escribiendo en celular (crítica)</li>
+                                        <li><span class="tag tag-warn">turning</span> Volteando hacia atrás</li>
+                                        <li><span class="tag tag-warn">other_activities</span> Otras distracciones</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Configuración de Entrenamiento</h4>
+                                    <ul class="model-info-list">
+                                        <li><b>Dataset:</b> Multi-Class Driver Behavior (Kaggle) · 7,276 imágenes · split 80/10/10</li>
+                                        <li><b>Tamaño imagen:</b> 224×224 · normalización ImageNet</li>
+                                        <li><b>Augmentación:</b> HorizontalFlip, Rotation(±15°), ColorJitter, RandomGrayscale(0.05)</li>
+                                        <li><b>Loss:</b> CrossEntropy con <code>class_weight</code> balanceado</li>
+                                        <li><b>Optimizador:</b> AdamW (lr = 1e-3, weight_decay = 1e-4)</li>
+                                        <li><b>Scheduler:</b> ReduceLROnPlateau(patience=3, factor=0.3) + grad_clip = 1.0</li>
+                                        <li><b>Batch size:</b> 32 · <b>Épocas máx:</b> 30 · <b>Early stopping:</b> patience = 6</li>
+                                    </ul>
+                                </div>
+                                <div class="model-info-block">
+                                    <h4>Métricas Comparativas (Test)</h4>
+                                    <table class="metrics-table">
+                                        <thead>
+                                            <tr><th>Modelo</th><th>Accuracy</th><th>AUC-ROC</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>MobileNetV2</td><td>0.782</td><td>0.9547</td></tr>
+                                            <tr class="winner"><td>ResNet50 ★</td><td><b>0.947</b></td><td><b>0.9972</b></td></tr>
+                                            <tr><td>EfficientNet-B0</td><td>0.723</td><td>0.9070</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </section>
             </main>
         </div>
