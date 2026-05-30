@@ -172,6 +172,12 @@ Los pesos pre-entrenados ya están incluidos en el repositorio, por lo que es po
 
 ---
 
+## Como usar la herramienta web
+
+- Ingresar a la [página web](https://huggingface.co/spaces/Jhanuar/RNA-TRABAJO-3)
+
+- Ingresar como invitado o como administrador (la clave es usuario:admin,contraseña:admin)
+
 ## Autores
 Trabajo desarrollado para la asignatura **Redes Neuronales y Algoritmos Bio-inspirados**.
 
