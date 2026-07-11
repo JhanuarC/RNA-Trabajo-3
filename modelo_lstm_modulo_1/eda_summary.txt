@@ -1,0 +1,55 @@
+=========================================
+  PERFILADO DE DATOS (DATA PROFILING)    
+=========================================
+Dimensiones del dataset: 144738 registros, 11 columnas
+
+Columnas y tipos de datos:
+ - fecha: datetime64[us]
+ - pais: str
+ - hemisferio: str
+ - car_type: str
+ - payment_method: str
+ - evento_especial: int64
+ - demanda_pasajeros: int64
+ - mes: int32
+ - dia_semana: int32
+ - es_fin_de_semana: int64
+ - dia_mes: int32
+
+Valores nulos por columna:
+ - fecha: 0
+ - pais: 0
+ - hemisferio: 0
+ - car_type: 0
+ - payment_method: 0
+ - evento_especial: 0
+ - demanda_pasajeros: 0
+ - mes: 0
+ - dia_semana: 0
+ - es_fin_de_semana: 0
+ - dia_mes: 0
+
+Estadísticas descriptivas de demanda_pasajeros:
+ - count: 144738.00
+ - mean: 212.35
+ - std: 199.75
+ - min: 2.00
+ - 25%: 78.00
+ - 50%: 135.00
+ - 75%: 274.00
+ - max: 1069.00
+
+Distribución por hemisferio:
+ - Hemisferio N: 78948 registros
+ - Hemisferio S: 39474 registros
+ - Hemisferio T: 26316 registros
+
+Países únicos (22): Argentina, Australia, Brazil, Canada, China, Egypt, France, Germany, Greece, India, Italy, Japan, Kenya, Mexico, Morocco, New Zealand, Peru, South Africa, Spain, Thailand, USA, Vietnam
+Tipos de transporte (3): luxury_bus, tourist_van, train_express
+Métodos de pago (3): cash, card, digital_wallet
+
+Registros en eventos especiales:
+ - Días regulares (0): 138996
+ - Días de eventos (1): 5742
+
+Rango temporal: desde 2024-01-01 hasta 2025-12-31
