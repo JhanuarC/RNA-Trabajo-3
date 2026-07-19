@@ -408,6 +408,10 @@
     background: rgba(6,214,160,.07);
     border-color: var(--accent-teal);
   }
+  .callout.rose {
+    background: rgba(239,71,111,.07);
+    border-color: var(--accent-rose);
+  }
   .callout-title {
     font-family: 'DM Mono', monospace;
     font-size: .75rem;
@@ -418,6 +422,7 @@
   }
   .callout.gold .callout-title { color: var(--accent-gold); }
   .callout.teal .callout-title { color: var(--accent-teal); }
+  .callout.rose .callout-title { color: var(--accent-rose); }
   .callout p { margin-bottom: 0; font-size: .92rem; }
 
   /* ─── TECH STACK BADGES ─── */
@@ -754,7 +759,7 @@
 
   <p class="lead">
     El proyecto adopta una metodología iterativa y modular inspirada en CRISP-DM
-    (Cross-Industry Standard Process for Data Mining), adaptada al ciclo de desarrollo
+    (Cross-Industry Standard Process for Data Mining) (Chapman et al., 2000), adaptada al ciclo de desarrollo
     de modelos de aprendizaje profundo.
   </p>
 
@@ -790,7 +795,7 @@
   <div class="two-col">
     <div>
       <h4>Redes LSTM (Long Short-Term Memory)</h4>
-      <p>Variante de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales. Las puertas de entrada, olvido y salida controlan qué información se retiene o descarta en la celda de memoria, resolviendo el problema del gradiente desvaneciente.</p>
+      <p>Variante de red neuronal recurrente diseñada para capturar dependencias de largo plazo en secuencias temporales (Hochreiter & Schmidhuber, 1997). Las puertas de entrada, olvido y salida controlan qué información se retiene o descarta en la celda de memoria, resolviendo el problema del gradiente desvaneciente característico de las RNN estándar (Hochreiter & Schmidhuber, 1997).</p>
 
       <div class="callout">
         <div class="callout-title">Justificación del uso de LSTM</div>
@@ -806,7 +811,7 @@
       </div>
 
       <h4>Transfer Learning</h4>
-      <p>Técnica que reutiliza representaciones aprendidas por modelos pre-entrenados en grandes conjuntos de datos (ImageNet). Permite obtener alto rendimiento con datasets pequeños mediante fine-tuning de las capas superiores de la red.</p>
+      <p>Técnica que reutiliza representaciones aprendidas por modelos pre-entrenados en grandes conjuntos de datos como ImageNet (Deng et al., 2009). Permite obtener alto rendimiento con datasets pequeños mediante fine-tuning de las capas superiores de la red, evitando entrenar millones de parámetros desde cero (Yosinski et al., 2014).</p>
 
       <div class="callout gold">
         <div class="callout-title">Justificación del uso de Transfer Learning y Fine-Tuning</div>
@@ -828,15 +833,16 @@
 
     <div>
       <h4>Sistemas de Recomendación Híbridos</h4>
-      <p>Combinan el filtrado colaborativo (patrones entre usuarios) con el filtrado basado en contenido (características de los ítems) en una arquitectura neuronal unificada, superando las limitaciones de cada enfoque por separado.</p>
+      <p>Combinan el filtrado colaborativo (patrones entre usuarios) con el filtrado basado en contenido (características de los ítems) en una arquitectura neuronal unificada, superando las limitaciones de cada enfoque por separado (Burke, 2002). El uso de redes neuronales profundas para modelar estas interacciones usuario-ítem, en lugar de factorización matricial clásica, mejora la capacidad de capturar relaciones no lineales complejas entre preferencias (He et al., 2017).</p>
 
       <div class="callout teal">
         <div class="callout-title">Justificación del Cambio de Dataset</div>
         <p>
           El dataset inicial (<code>amanmehra23/travel-recommendation-dataset</code>) presentaba 
           limitaciones estructurales críticas: 999 registros, 1.6 interacciones por usuario y 
-          solo 5 destinos únicos reales, generando el <strong>cold-start problem</strong> clásico 
-          con un F1 de apenas 0.47 — cercano al azar (F1 aleatorio esperado: 0.38). Se migró a 
+          solo 5 destinos únicos reales, generando el <strong>cold-start problem</strong> clásico
+          de los sistemas de recomendación (Burke, 2002; He et al., 2017)
+          con un F1 de apenas 0.47 — cercano al azar (F1 aleatorio esperado: 0.38). Se migró a
           <code>ishbhms/travel-review-ratings</code>, con 5,456 usuarios, 24 categorías turísticas 
           y 130,944 interacciones totales (24 por usuario, 15× más que el original), eliminando 
           completamente el problema y permitiendo al modelo aprender patrones reales de 
@@ -929,6 +935,113 @@
        alcanzan pico en invierno (×2.0) por turismo; Uttar Pradesh y Rajastán tienen mayor
        demanda en estaciones frías (×1.5). También se modelan efectos semanales (viernes/sábado +25)
        y tendencia de crecimiento lineal.</p>
+  </div>
+
+  <h3>Análisis Exploratorio de Datos (EDA)</h3>
+  <p>Antes de definir la arquitectura, se realizó un perfilado estadístico completo del dataset
+     (144,738 registros, 22 países, 3 tipos de vehículo) para caracterizar la forma de la
+     variable objetivo, su estacionalidad y su dependencia temporal — insumos que determinaron
+     directamente el diseño de la ventana deslizante y las features de entrada del modelo.</p>
+
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num">212.35</div>
+      <div class="metric-label">Media (pasajeros/día)</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">199.75</div>
+      <div class="metric-label">Desv. estándar</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num teal">135</div>
+      <div class="metric-label">Mediana</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num rose">2 – 1,069</div>
+      <div class="metric-label">Rango (min–max)</div>
+    </div>
+  </div>
+
+  <h4>Distribución y Outliers</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/eda_modulo1/01_demand_distribution.png" alt="Distribución de la demanda de pasajeros y boxplot de outliers" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>El histograma muestra un <strong>sesgo pronunciado a la derecha</strong>: la mayoría de los días
+     concentran una demanda baja (entre 50 y 200 pasajeros, coincidente con la mediana de 135),
+     pero existe una cola larga que se extiende hasta 1,069. El boxplot confirma la presencia de
+     una cantidad considerable de outliers por encima del bigote superior (~565 pasajeros). Esta
+     asimetría descarta el supuesto de normalidad y justifica dos decisiones de diseño: (1) usar
+     <strong>MinMaxScaler</strong> en vez de una estandarización basada en media/desviación, que sería
+     sensible a estos valores extremos, y (2) incluir <code>evento_especial</code> como feature
+     explícita, ya que gran parte de los outliers corresponde a picos asociados a eventos (ver más abajo).</p>
+
+  <h4>Estacionalidad Temporal</h4>
+  <div class="two-col">
+    <div>
+      <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+        <img src="../results/eda_modulo1/03_monthly_seasonality.png" alt="Demanda promedio de pasajeros por mes" style="width:100%; border-radius:var(--radius); display:block;">
+      </div>
+      <p>La demanda promedio mensual revela un <strong>patrón anual claro</strong>: diciembre es el
+         pico máximo (~288 pasajeros/día), seguido de agosto (~257), mientras que septiembre y
+         noviembre son los meses más bajos (~166 y ~160). Este comportamiento sugiere una fuerte
+         influencia de las vacaciones de fin de año y el periodo estival del hemisferio norte.</p>
+    </div>
+    <div>
+      <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+        <img src="../results/eda_modulo1/04_weekly_seasonality.png" alt="Demanda promedio por día de la semana y comparación semana vs fin de semana" style="width:100%; border-radius:var(--radius); display:block;">
+      </div>
+      <p>A nivel semanal, <strong>viernes y sábado</strong> concentran la mayor demanda (~250 pasajeros),
+         mientras que el domingo cae notoriamente (~175). El agrupamiento semana vs. fin de semana
+         confirma que este último tiene un promedio muy superior, evidencia directa de un uso
+         del transporte orientado al ocio y los desplazamientos de fin de semana.</p>
+    </div>
+  </div>
+
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/eda_modulo1/02_temporal_trend.png" alt="Evolución temporal de la demanda total con media móvil de 30 días" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>La serie de tiempo agregada (línea de demanda diaria) es altamente volátil día a día, pero
+     su media móvil de 30 días (línea naranja) expone una <strong>estacionalidad anual recurrente</strong>:
+     los picos se repiten aproximadamente cada 12 meses, con máximos hacia finales de cada año.
+     Esta periodicidad de largo plazo, sumada al patrón semanal, es la justificación empírica
+     directa de la ventana de 14 días utilizada en la LSTM (dos ciclos semanales completos).</p>
+
+  <h4>Autocorrelación y Persistencia</h4>
+  <div class="two-col">
+    <div>
+      <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+        <img src="../results/eda_modulo1/07_acf_pacf.png" alt="Función de autocorrelación de la demanda" style="width:100%; border-radius:var(--radius); display:block;">
+      </div>
+      <p>La función de autocorrelación (ACF) parte de un valor cercano a 0.9 en el lag 1 y decae
+         de forma lenta y monótona a lo largo de 30 lags. Siguiendo el marco clásico de análisis
+         de series de tiempo (Box et al., 2015), esta <strong>persistencia</strong> indica que
+         la demanda de un día es altamente similar a la de los días inmediatamente anteriores,
+         confirmando que se trata de una serie temporal genuina donde el pasado reciente es un
+         predictor fuerte del futuro — el fundamento estadístico que hace apropiado un modelo
+         secuencial como la LSTM frente a un modelo que ignore el orden temporal.</p>
+    </div>
+    <div>
+      <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+        <img src="../results/eda_modulo1/06_special_events_impact.png" alt="Impacto de eventos especiales en la demanda de pasajeros" style="width:100%; border-radius:var(--radius); display:block;">
+      </div>
+      <p>El boxplot comparativo entre días normales y días con evento especial muestra que estos
+         últimos tienen una <strong>mediana notablemente más alta</strong> y una caja desplazada hacia
+         arriba, confirmando que los eventos especiales son un impulsor crítico de picos de
+         demanda — variable que se incorporó explícitamente como feature binaria de entrada.</p>
+    </div>
+  </div>
+
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/eda_modulo1/08_correlation_matrix.png" alt="Matriz de correlación de Pearson entre variables del dataset" style="width:100%; max-width:640px; margin:0 auto; border-radius:var(--radius); display:block;">
+  </div>
+  <div class="callout teal">
+    <div class="callout-title">Lectura de la Matriz de Correlación</div>
+    <p>La matriz de Pearson muestra correlaciones lineales bajas entre <code>demanda_pasajeros</code>
+       y las variables calendario individuales (mes, día de la semana, día del mes), lo cual es
+       esperado: estas relaciones son <strong>no lineales y de tipo categórico/estacional</strong>
+       (ej. diciembre vs. septiembre), no lineales continuas. Esto refuerza la decisión de no
+       depender de un modelo lineal (como la regresión base) y delegar en la LSTM la capacidad
+       de aprender estas relaciones no lineales complejas directamente de la secuencia.</p>
   </div>
 
   <h3>Preprocesamiento</h3>
@@ -1086,15 +1199,15 @@
   <div class="cards-grid">
     <div class="card">
       <h4>MobileNetV2</h4>
-      <p>Feature extractor completamente congelado. Solo el clasificador final es entrenable. Diseñado para eficiencia en dispositivos móviles. Accuracy: <strong>78.2%</strong></p>
+      <p>Feature extractor completamente congelado. Solo el clasificador final es entrenable. Diseñado para eficiencia en dispositivos móviles mediante convoluciones separables en profundidad y bloques residuales invertidos (Sandler et al., 2018). Accuracy: <strong>78.2%</strong></p>
     </div>
     <div class="card">
       <h4>ResNet50 — GANADOR</h4>
-      <p>Capa <code>layer4</code> descongelada para fine-tuning específico del dominio. Conexiones residuales que facilitan el flujo de gradiente. Accuracy: <strong>94.7%</strong></p>
+      <p>Capa <code>layer4</code> descongelada para fine-tuning específico del dominio. Conexiones residuales que facilitan el flujo de gradiente en redes profundas (He et al., 2016). Accuracy: <strong>94.7%</strong></p>
     </div>
     <div class="card">
       <h4>EfficientNet-B0</h4>
-      <p>Solo el clasificador es entrenable. Escalamiento compuesto de profundidad/anchura/resolución. Accuracy: <strong>72.3%</strong></p>
+      <p>Solo el clasificador es entrenable. Escalamiento compuesto de profundidad/anchura/resolución mediante un coeficiente único (Tan & Le, 2019). Accuracy: <strong>72.3%</strong></p>
     </div>
   </div>
 
@@ -1143,6 +1256,105 @@
       <span class="layer">Resolución</span>   <span class="arrow">:</span>  <span class="val">224 × 224 × 3</span> (RGB)
     </div>
 
+  <h3>Distribución del Dataset</h3>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/distribucion_clases.png" alt="Distribución de clases en el dataset completo" style="width:100%; max-width:760px; margin:0 auto; border-radius:var(--radius); display:block;">
+  </div>
+  <p>El dataset completo (7,276 imágenes) está <strong>razonablemente balanceado</strong> entre las 5
+     clases, con proporciones entre 16.3% (<code>other_activities</code>) y 23.1% (<code>safe_driving</code>).
+     Esta ausencia de desbalance severo (a diferencia, por ejemplo, del Módulo 3) explica por qué el
+     <code>class_weight</code> aplicado durante el entrenamiento tiene un efecto moderado más que
+     correctivo: su función aquí es afinar el aprendizaje de las clases ligeramente minoritarias
+     (<em>other_activities</em>, <em>turning</em>) sin necesidad de una compensación agresiva.</p>
+
+  <h3>Curvas de Entrenamiento por Modelo</h3>
+  <p>Antes de comparar métricas finales, es útil observar cómo evolucionó cada modelo durante el
+     entrenamiento — la forma de las curvas revela si el modelo realmente aprendió el dominio o si
+     alcanzó su métrica final por una configuración favorable pero con ajuste incompleto.</p>
+
+  <h4>MobileNetV2</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/curvas_mobilenet.png" alt="Curvas de pérdida y accuracy de entrenamiento y validación para MobileNetV2" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>Las curvas de MobileNetV2 muestran una particularidad: la <strong>validación se mantiene
+     sistemáticamente por encima del entrenamiento</strong> tanto en accuracy (~0.80 vs. ~0.68 al
+     final) como en loss inferior. Esto es consistente con el <code>Dropout</code> aplicado en el
+     clasificador (p=0.4 y p=0.3): al estar activo solo durante entrenamiento, penaliza la accuracy
+     de train de forma artificial, mientras que en validación el modelo opera sin esa regularización.
+     Ambas curvas siguen una tendencia ascendente/descendente sana sin cruces bruscos ni oscilaciones
+     de sobreajuste hasta la época 30, pero ninguna se aplana del todo — el modelo aún tenía margen
+     de mejora si se hubiese entrenado más épocas, limitado aquí por tener el feature extractor
+     completamente congelado (solo el clasificador final aprende).</p>
+
+  <h4>EfficientNet-B0</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/curvas_efficientnet.png" alt="Curvas de pérdida y accuracy de entrenamiento y validación para EfficientNet-B0" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>EfficientNet-B0 exhibe el patrón más problemático de los tres: la accuracy de validación
+     <strong>se estanca alrededor de 0.70–0.73 desde la época 10</strong> y oscila con ruido
+     considerable sin mejorar sustancialmente en las 20 épocas restantes, mientras que el train
+     se estabiliza en ~0.63. Este techo temprano, combinado con el <em>gap</em> persistente entre
+     train y val (nuevamente explicado por el Dropout activo solo en entrenamiento) y la ausencia
+     de una tendencia de mejora clara, es la señal más directa de que el clasificador superficial
+     entrenado sobre features 100% congeladas no logra capturar patrones suficientemente discriminativos
+     para las 5 clases — consistente con ser el modelo de menor accuracy final (72.3%).</p>
+
+  <h4>ResNet50</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/curvas_resnet50.png" alt="Curvas de pérdida y accuracy de entrenamiento y validación para ResNet50" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>ResNet50 converge de forma notablemente más rápida y estable: alcanza ~0.95 de accuracy de
+     validación hacia la época 8 y activa <code>EarlyStopping</code> en la época 16 (frente a las
+     30 completas de los otros dos modelos). El train y el val avanzan prácticamente en paralelo
+     durante todo el entrenamiento, con el val ligeramente por debajo del train hacia el final —el
+     comportamiento esperado y saludable de un modelo bien ajustado, sin señales de sobreajuste ni
+     de estancamiento. Esta convergencia rápida y estable es la evidencia más directa de que
+     descongelar <code>layer4</code> le dio al modelo la capacidad representacional que a
+     MobileNetV2 y EfficientNet-B0 (con toda su base congelada) les faltó.</p>
+
+  <h3>Predicciones — Aciertos y Desaciertos por Modelo</h3>
+  <p>Para contrastar cualitativamente el comportamiento de los tres modelos, se examinaron ejemplos
+     de predicción correcta e incorrecta de cada uno sobre las mismas imágenes de prueba.</p>
+
+  <h4>MobileNetV2</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/predicciones_mobilenet.png" alt="Ejemplos de predicciones correctas e incorrectas del modelo MobileNetV2" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>En los aciertos, MobileNetV2 logra confianzas razonablemente altas (80–90%) en casos claros de
+     <code>texting_phone</code> y <code>talking_phone</code>. Sin embargo, los desaciertos muestran un
+     patrón revelador: todos ocurren con <strong>confianza baja (32%–50%)</strong> y casi siempre
+     involucran <code>other_activities</code> como predicción errónea de respaldo —el modelo la usa
+     como "clase comodín" cuando no está seguro, incluso confundiendo <em>turning</em> y
+     <em>safe_driving</em> reales con ella. Esto sugiere que, al no haber sido afinado sobre el
+     dominio (features congeladas), MobileNetV2 aprendió a reconocer patrones superficiales
+     asociados al teléfono, pero no logra diferenciar bien las posturas más sutiles de la cabeza
+     y el torso que distinguen <em>safe_driving</em>, <em>turning</em> y <em>other_activities</em> entre sí.</p>
+
+  <h4>EfficientNet-B0</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/predicciones_efficientnet.png" alt="Ejemplos de predicciones correctas e incorrectas del modelo EfficientNet-B0" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p>EfficientNet-B0 es el caso más débil de los tres: incluso sus <strong>aciertos tienen confianzas
+     bajas</strong> (39%–64%, frente al 80–100% típico de ResNet50), lo que indica que el modelo
+     acierta la clase pero sin verdadera certeza estadística —muy cerca de una decisión marginal.
+     Los desaciertos (31%–46% de confianza) muestran la misma tendencia que MobileNetV2 hacia
+     <em>turning</em> y <em>other_activities</em> como clases de confusión frecuente, pero con
+     confianzas aún más bajas y parejas entre clases, reflejando un modelo que no logró aprender
+     fronteras de decisión claras entre comportamientos visualmente similares. Esto es consistente
+     con haber sido, de los tres, el modelo con la curva de validación más estancada y ruidosa.</p>
+
+  <div class="callout gold">
+    <div class="callout-title">Patrón Común: la Confianza como Señal de Calidad del Fine-Tuning</div>
+    <p>Comparando los tres modelos sobre las mismas imágenes, emerge un patrón consistente: a mayor
+       profundidad de fine-tuning (features congeladas → solo <code>layer4</code> descongelada),
+       mayor separación entre la confianza de aciertos y desaciertos. ResNet50 acierta con ~90–100%
+       y falla con 41–73%; MobileNetV2 acierta con ~80–90% y falla con 32–50%; EfficientNet-B0 acierta
+       con apenas 39–64% y falla con 31–46% —una brecha casi inexistente que delata un modelo incapaz
+       de discriminar con seguridad incluso cuando predice correctamente. La confianza de predicción,
+       más allá del accuracy agregado, es entonces un indicador cualitativo directo de cuánto
+       aprendió realmente cada arquitectura sobre el dominio específico de conducción.</p>
+  </div>
+
   <h3>Resultados</h3>
   <table class="compare-table">
     <thead>
@@ -1181,10 +1393,97 @@
 
   <div class="callout gold">
     <div class="callout-title">Por qué ResNet50 supera a EfficientNet y MobileNetV2</div>
-    <p>El fine-tuning de <code>layer4</code> en ResNet50 permite que las representaciones de alto nivel
+    <p>Las tres arquitecturas fueron diseñadas con objetivos distintos. MobileNetV2 (Sandler et al., 2018)
+       y EfficientNet-B0 (Tan & Le, 2019) priorizan la <strong>eficiencia computacional</strong> —
+       convoluciones separables en profundidad y escalamiento compuesto, respectivamente— para operar
+       en dispositivos con recursos limitados, a costa de capacidad representacional. ResNet50, en cambio,
+       fue diseñada para permitir redes muy profundas sin degradación del gradiente gracias a sus
+       conexiones residuales (He et al., 2016), lo que la hace especialmente apta para fine-tuning
+       profundo. El descongelamiento de <code>layer4</code> permite que las representaciones de alto nivel
        se adapten al dominio específico (imágenes de conductores), mientras que las capas inferiores
-       retienen los detectores genéricos de bordes y texturas. El AUC-ROC de 0.9972 confirma una
-       capacidad discriminativa casi perfecta entre las 5 clases.</p>
+       retienen los detectores genéricos de bordes y texturas aprendidos en ImageNet. Al no existir
+       restricción de latencia móvil en este proyecto (los modelos corren en GPU T4 vía Colab), la
+       arquitectura de ResNet50 está mejor alineada con el objetivo de máxima exactitud. El AUC-ROC de
+       0.9972 confirma una capacidad discriminativa casi perfecta entre las 5 clases.</p>
+  </div>
+
+  <h3>Matrices de Confusión por Modelo</h3>
+  <p>Las matrices de confusión completan el análisis cualitativo anterior, mostrando exactamente
+     qué pares de clases confunde cada modelo sobre la totalidad del conjunto de prueba.</p>
+
+  <h4>MobileNetV2</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/confusion_mobilenet.png" alt="Matriz de confusión del modelo MobileNetV2" style="width:100%; max-width:640px; margin:0 auto; border-radius:var(--radius); display:block;">
+  </div>
+  <p>La matriz confirma cuantitativamente lo observado en los ejemplos individuales: los errores de
+     MobileNetV2 están mucho más dispersos que los de ResNet50, con confusión notable en todas las
+     direcciones —<em>other_activities</em> se confunde con <em>texting_phone</em> (16 casos) y
+     <em>safe_driving</em> (13); <em>talking_phone</em> pierde 18 casos hacia <em>other_activities</em>;
+     y <em>texting_phone</em> se reparte entre <em>safe_driving</em> (18) y <em>other_activities</em> (16).
+     Esta dispersión generalizada, en contraste con el patrón concentrado de ResNet50 (casi todo el
+     error en el par safe_driving↔turning), es la firma de un modelo que no logró especializar sus
+     representaciones al dominio.</p>
+
+  <h4>EfficientNet-B0</h4>
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/confusion_efficientnet.png" alt="Matriz de confusión del modelo EfficientNet-B0" style="width:100%; max-width:640px; margin:0 auto; border-radius:var(--radius); display:block;">
+  </div>
+  <p>EfficientNet-B0 exhibe la matriz más dispersa de los tres modelos, coherente con ser el de menor
+     accuracy global. La clase <em>other_activities</em> es la más afectada: solo 63 de 129 casos
+     reales se clasifican correctamente (recall ≈49%), repartiéndose el resto entre las cuatro clases
+     restantes casi por igual (10–22 casos cada una). Incluso las clases de mayor relevancia para
+     seguridad vial pierden precisión: <em>talking_phone</em> tiene 7+7+15+4 = 33 errores hacia otras
+     clases, y <em>texting_phone</em> 8+11+13+4 = 36. Esta falta de especialización confirma, a nivel
+     de matriz completa, que congelar toda la red base sin ningún fine-tuning es insuficiente para
+     este dominio cuando el backbone es tan compacto como EfficientNet-B0.</p>
+
+  <h3>Análisis de Aciertos y Desaciertos — Modelo Ganador (ResNet50)</h3>
+  <p>Para comprender las limitaciones reales del clasificador desplegado más allá de las métricas
+     agregadas, se analizaron individualmente las predicciones de ResNet50 sobre el conjunto de
+     prueba, contrastando ejemplos correctamente clasificados con los errores cometidos.</p>
+
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/predicciones_resnet50.png" alt="Ejemplos de predicciones correctas e incorrectas del modelo ResNet50" style="width:100%; border-radius:var(--radius); display:block;">
+  </div>
+  <p style="font-size:.85rem; text-align:center; margin-top:-.5rem;">
+    Fila superior (verde): predicciones correctas con alta confianza. Fila inferior (rojo): casos de desacierto del modelo.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h4>Casos de Acierto</h4>
+      <p>En los ejemplos correctamente clasificados (fila superior), el modelo alcanza confianzas
+         cercanas al 100% incluso en posturas con oclusión parcial de las manos, como
+         <code>texting_phone</code> con el teléfono sostenido a la altura del regazo o
+         <code>talking_phone</code> con el dispositivo pegado al oído. Esto sugiere que ResNet50
+         no depende únicamente de la posición de las manos, sino que integra señales contextuales
+         como la orientación de la cabeza y el ángulo del torso.</p>
+    </div>
+    <div>
+      <h4>Casos de Desacierto</h4>
+      <p>Los errores observados corresponden principalmente a confusiones entre
+         <strong>safe_driving</strong> y <strong>turning</strong> con confianzas bajas (41%–73%),
+         lo cual indica que el modelo mismo reconoce ambigüedad en vez de fallar con seguridad.
+         Estos casos comparten posturas visualmente similares: manos sobre el volante en posición
+         de giro parcial, que pueden confundirse con una sujeción normal del volante si el ángulo
+         de la cámara no captura claramente la rotación de la cabeza o el torso.</p>
+    </div>
+  </div>
+
+  <div class="arch-block" style="padding:1rem; background:transparent; border:none;">
+    <img src="../results/confusion_resnet50.png" alt="Matriz de confusión del modelo ResNet50" style="width:100%; max-width:640px; margin:0 auto; border-radius:var(--radius); display:block;">
+  </div>
+
+  <div class="callout rose">
+    <div class="callout-title">Patrón Dominante de Error</div>
+    <p>La matriz de confusión confirma que la mayor fuente de error de ResNet50 es la confusión
+       entre <strong>safe_driving</strong> y <strong>turning</strong> (9 casos clasificados como
+       <em>turning</em> siendo <em>safe_driving</em>, y 7 casos inversos), seguida de una confusión
+       menor entre <strong>safe_driving</strong> y <strong>other_activities</strong> (9 casos).
+       En contraste, las clases <code>talking_phone</code> y <code>texting_phone</code> —las de
+       mayor relevancia para seguridad vial— presentan prácticamente cero confusión entre sí
+       (159/160 y 160/165 aciertos respectivamente), lo que valida al modelo como confiable
+       específicamente para el objetivo de detectar uso del teléfono al conducir.</p>
   </div>
 
   <h3>Implicaciones para Seguridad Vial</h3>
@@ -1239,6 +1538,81 @@
       <p><strong>2,000 destinos mundiales</strong> con tipo, rating promedio, costo diario, país
          y otras características. Fuente de ítems para la recomendación final.</p>
     </div>
+  </div>
+
+  <h3>Análisis Exploratorio de Datos (EDA)</h3>
+  <p>Antes de definir el umbral de clasificación y la estrategia de balanceo, se caracterizó
+     estadísticamente el comportamiento de calificación de los 5,456 usuarios sobre las 24
+     categorías, generando 130,944 interacciones totales (24 interacciones por usuario en promedio).</p>
+
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num">2.03</div>
+      <div class="metric-label">Rating medio global</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num gold">1.27</div>
+      <div class="metric-label">Desv. estándar</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num teal">17.85%</div>
+      <div class="metric-label">Interacciones positivas (≥3.5)</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num rose">2.28</div>
+      <div class="metric-label">Varianza media / usuario</div>
+    </div>
+  </div>
+
+  <h4>Distribución Bimodal de Ratings</h4>
+  <p>La distribución general de calificaciones (0–5) presenta una forma <strong>bimodal marcada</strong>,
+     con un pico concentrado entre 0 y 1 (≈14,000 interacciones) y un segundo pico en el valor
+     máximo cercano a 5 (≈13,000 interacciones), con una zona intermedia comparativamente vacía.
+     Esto revela que los usuarios de Google Reviews califican de forma <strong>polarizada</strong>:
+     registran mayoritariamente experiencias extremas (muy negativas o muy positivas) y rara vez
+     valoraciones neutras. Esta polarización es la justificación empírica directa del umbral de
+     decisión binario en <strong>3.5</strong>: al estar los datos naturalmente agrupados en dos
+     extremos, un corte en la zona de baja densidad entre ambos picos separa las clases con
+     un solapamiento mínimo, favoreciendo la tarea de clasificación binaria del MLP.</p>
+
+  <h4>Desbalance de Clases</h4>
+  <p>Aplicando el umbral de 3.5, el dataset resulta severamente desbalanceado: <strong>17.85%
+     de interacciones positivas</strong> (23,384) frente a <strong>82.15% negativas</strong> (107,560).
+     Sin corrección, un modelo trivial que prediga siempre "negativo" alcanzaría 82% de accuracy
+     sin aprender ningún patrón útil — razón por la cual se introdujo el término
+     <code>pos_weight</code> en <code>BCEWithLogitsLoss</code>, calculado como la razón entre la
+     proporción de negativos y positivos del EDA (0.8215 / 0.1785), penalizando más los errores
+     sobre la clase minoritaria durante el entrenamiento.</p>
+
+  <h4>Preferencias por Categoría</h4>
+  <p>El rating promedio por categoría confirma que <strong>ninguna categoría individual supera
+     el umbral positivo de 3.5</strong>, lo que explica el desbalance a nivel agregado. Las
+     categorías mejor valoradas corresponden a actividades comerciales y de entretenimiento urbano
+     (<em>malls</em>: 3.35, <em>restaurants</em>: 3.13, <em>theatres</em>: 2.96, <em>museums</em>: 2.89,
+     <em>pubs_bars</em>: 2.83), mientras que las peor valoradas corresponden a servicios de bienestar
+     y actividad física (<em>gyms</em>: 0.82, <em>swimming_pools</em>: 0.95, <em>cafes</em>: 0.97).
+     Este patrón indica que el perfil dominante de usuario en el dataset está orientado al turismo
+     cultural y comercial, y motivó que el sistema en cascada priorice el mapeo hacia destinos de
+     tipo <em>City</em> e <em>Historical</em> para la mayoría de perfiles.</p>
+
+  <h4>Diversidad de Perfiles (Varianza por Usuario)</h4>
+  <p>La varianza de ratings dentro de cada usuario tiene una media de <strong>2.28</strong>
+     (rango 0.10–4.44) con una distribución aproximadamente uniforme entre 0 y 4, más una
+     acumulación notable en el extremo superior (~480 usuarios con varianza cercana a 4.4).
+     Esto confirma que existe suficiente heterogeneidad de preferencias entre usuarios para que
+     el modelo pueda personalizar: los usuarios de varianza alta tienen preferencias muy marcadas
+     y son más fáciles de recomendar, mientras que los de varianza baja (<0.5) presentan perfiles
+     homogéneos que dificultan la diferenciación — una limitación que se retoma en la sección de
+     áreas de mejora del reporte.</p>
+
+  <div class="callout teal">
+    <div class="callout-title">Del EDA a las Decisiones de Modelado</div>
+    <p>La bimodalidad de los ratings justifica el umbral de 3.5 como frontera de decisión;
+       el desbalance 17.85%/82.15% justifica el uso de <code>pos_weight</code> en la función de
+       pérdida; y la varianza media de 2.28 confirma que el dataset tiene la diversidad de
+       preferencias necesaria para que un modelo de deep learning aprenda patrones de
+       personalización reales, en contraste con el dataset original descartado
+       (<code>amanmehra23/travel-recommendation-dataset</code>), que carecía de esta variabilidad.</p>
   </div>
 
   <h3>Arquitectura — HybridRecommender (MLP)</h3>
@@ -1658,10 +2032,18 @@
     <li>Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. <em>Neural computation</em>, 9(8), 1735–1780.</li>
     <li>He, K., Zhang, X., Ren, S., & Sun, J. (2016). Deep residual learning for image recognition. <em>Proceedings of the IEEE CVPR</em>, 770–778.</li>
     <li>Howard, A. G., et al. (2017). MobileNets: Efficient convolutional neural networks for mobile vision applications. <em>arXiv:1704.04861</em>.</li>
+    <li>Sandler, M., Howard, A., Zhu, M., Zhmoginov, A., & Chen, L.-C. (2018). MobileNetV2: Inverted residuals and linear bottlenecks. <em>Proceedings of the IEEE CVPR</em>, 4510–4520.</li>
     <li>Tan, M., & Le, Q. V. (2019). EfficientNet: Rethinking model scaling for CNNs. <em>ICML 2019</em>, 6105–6114.</li>
+    <li>Deng, J., Dong, W., Socher, R., Li, L.-J., Li, K., & Fei-Fei, L. (2009). ImageNet: A large-scale hierarchical image database. <em>Proceedings of the IEEE CVPR</em>, 248–255.</li>
+    <li>Yosinski, J., Clune, J., Bengio, Y., & Lipson, H. (2014). How transferable are features in deep neural networks? <em>Advances in Neural Information Processing Systems</em>, 27, 3320–3328.</li>
     <li>Koren, Y., Bell, R., & Volinsky, C. (2009). Matrix factorization techniques for recommender systems. <em>Computer</em>, 42(8), 30–37.</li>
+    <li>Burke, R. (2002). Hybrid recommender systems: Survey and experiments. <em>User Modeling and User-Adapted Interaction</em>, 12(4), 331–370. https://doi.org/10.1023/A:1021240730564</li>
+    <li>He, X., Liao, L., Zhang, H., Nie, L., Hu, X., & Chua, T.-S. (2017). Neural collaborative filtering. <em>Proceedings of the 26th International Conference on World Wide Web</em>, 173–182. https://doi.org/10.1145/3038912.3052569</li>
+    <li>Box, G. E. P., Jenkins, G. M., Reinsel, G. C., & Ljung, G. M. (2015). <em>Time series analysis: Forecasting and control</em> (5th ed.). Wiley.</li>
+    <li>Chapman, P., Clinton, J., Kerber, R., Khabaza, T., Reinartz, T., Shearer, C., & Wirth, R. (2000). <em>CRISP-DM 1.0: Step-by-step data mining guide</em>. SPSS Inc.</li>
     <li>Afradi, A. (2024). Multi-Class Driver Behavior Image Dataset. <em>Kaggle</em>. https://www.kaggle.com/datasets/arafatsahinafridi/multi-class-driver-behavior-image-dataset</li>
     <li>Mehra, A. (2023). Travel Recommendation Dataset. <em>Kaggle</em>. https://www.kaggle.com/datasets/amanmehra23/travel-recommendation-dataset</li>
+    <li>Lichman, M. (2013). <em>UCI Machine Learning Repository</em>. University of California, Irvine. https://archive.ics.uci.edu/ml</li>
     <li>GeeksforGeeks. (2023). Transport Demand Prediction using Regression. https://www.geeksforgeeks.org/transport-demand-prediction-using-regression/</li>
     <li>Abadi, M., et al. (2015). TensorFlow: Large-scale machine learning on heterogeneous systems. <em>OSDI 2016</em>.</li>
     <li>Paszke, A., et al. (2019). PyTorch: An imperative style, high-performance deep learning library. <em>NeurIPS 2019</em>.</li>
